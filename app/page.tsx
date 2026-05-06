@@ -13,6 +13,7 @@ import {
 import { StockTable } from "@/components/stock-table";
 import { StockDetailPanel } from "@/components/stock-detail-panel";
 import { StockCard, StockCardSkeleton } from "@/components/stock-card";
+import { StockUsageGuide } from "@/components/usage-guide";
 import { StockDetailModal } from "@/components/stock-detail-modal";
 import { USMarketSignal } from "@/components/us-market-signal";
 import { HistorySection } from "@/components/history-section";
@@ -21,6 +22,7 @@ import { Stock, mockStocks, mock30DayHistory } from "@/lib/stock-data";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ExternalLink, Filter, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { AuthButtons } from "@/components/auth-buttons";
 
 type DataState = "loading" | "success" | "empty" | "error";
 
@@ -41,14 +43,14 @@ export default function DashboardPage() {
 
     const timer = setTimeout(() => {
       const historyItem = mock30DayHistory.find(
-        (h) => h.date === selectedDateStr,
+        (h) => h.date === selectedDateStr
       );
 
       if (historyItem && historyItem.stockCount > 0) {
         // Show stocks proportional to the count in history
         const stocksToShow = mockStocks.slice(
           0,
-          Math.min(historyItem.stockCount, mockStocks.length),
+          Math.min(historyItem.stockCount, mockStocks.length)
         );
         setStocks(stocksToShow);
         setDataState("success");
@@ -78,6 +80,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <AuthButtons />
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
         <div className="container mx-auto px-4 py-3">
@@ -166,6 +169,7 @@ export default function DashboardPage() {
                 {dataState === "error" && <ErrorState />}
               </CardContent>
             </Card>
+            <StockUsageGuide />
           </div>
 
           {/* Right Sidebar */}

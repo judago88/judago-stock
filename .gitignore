@@ -13,9 +13,25 @@ next.user-config.*
 .env.development.local
 .env.production.local
 .env*.local
+supabase/.env.local
 
 # Common ignores
-node_modules
+node_modules/
 .next/
 .DS_Store
 .vercel
+out/
+
+# supabase temp
+supabase/.temp/
+supabase/.branches/
+supabase/.cache/
+
+# test functions (선택)
+supabase/functions/test-*
+
+# optional
+.vscode/
+
+*.log
+*.tsbuildinfo
