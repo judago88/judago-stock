@@ -1,11 +1,13 @@
+import { createClient } from '@/lib/supabase/client'
+
 export interface Stock {
   id: string
   name: string
   ticker: string
   closingPrice: number
   changePercent: number
-  tradingValue: number // in billions KRW
-  marketCap: number // in billions KRW
+  tradingValue: number // 억 원
+  marketCap: number // 억 원
   theme: string
   sector: string
   market: 'KOSPI' | 'KOSDAQ'
@@ -18,104 +20,150 @@ export interface DayHistory {
   stockCount: number
 }
 
+export interface ChartDataPoint {
+  date: string
+  open: number
+  high: number
+  low: number
+  close: number
+}
+
+export interface StockSignalCondition {
+  id: string
+  name: string
+  min_change_rate: number
+  min_trade_amount: number
+  is_active: boolean
+}
+
+export async function getActiveStockSignalCondition() {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('stock_signal_conditions')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (error) throw error
+
+  return data as StockSignalCondition
+}
+
+export async function getStocksByDate(date: string): Promise<Stock[]> {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('stock_signals')
+    .select('*')
+    .eq('signal_date', date)
+    .order('trade_amount', { ascending: false })
+
+  if (error) throw error
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    name: row.stock_name,
+    ticker: row.stock_code,
+    closingPrice: row.close_price ?? 0,
+    changePercent: Number(row.change_rate ?? 0),
+    tradingValue: Math.round(Number(row.trade_amount ?? 0) / 100000000),
+    marketCap: Number(row.market_cap ?? 0),
+    theme: row.theme ?? '미분류',
+    sector: row.sector ?? '미분류',
+    market: row.market === 'KOSPI' ? 'KOSPI' : 'KOSDAQ',
+    hasHighVolume: Number(row.trade_amount ?? 0) >= 50_000_000_000,
+    recentTrend: '조건 충족 종목입니다. 상세 차트와 거래대금 흐름을 확인하세요.',
+  }))
+}
+
+export async function getSignalHistory(limit = 30): Promise<DayHistory[]> {
+  const supabase = createClient()
+
+  const startDate = new Date()
+  startDate.setDate(startDate.getDate() - limit)
+
+  const yyyyMMdd = startDate.toISOString().split('T')[0]
+
+  const { data, error } = await supabase
+    .from('stock_signals')
+    .select('signal_date')
+    .gte('signal_date', yyyyMMdd)
+
+  if (error) throw error
+
+  const countByDate = new Map<string, number>()
+
+  for (const row of data ?? []) {
+    const date = row.signal_date
+    countByDate.set(date, (countByDate.get(date) ?? 0) + 1)
+  }
+
+  const result: DayHistory[] = []
+
+  for (let i = 0; i < limit; i++) {
+    const date = new Date()
+    date.setDate(date.getDate() - i)
+
+    const dateStr = date.toISOString().split('T')[0]
+
+    result.push({
+      date: dateStr,
+      stockCount: countByDate.get(dateStr) ?? 0,
+    })
+  }
+
+  return result
+}
+
+export async function getStockChartData(
+  stockCode: string,
+  limit = 60,
+): Promise<ChartDataPoint[]> {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('stock_price_history')
+    .select('price_date, open_price, high_price, low_price, close_price')
+    .eq('stock_code', stockCode)
+    .order('price_date', { ascending: false })
+    .limit(limit)
+
+  if (error) throw error
+
+  return (data ?? [])
+    .reverse()
+    .map((row) => ({
+      date: row.price_date,
+      open: row.open_price ?? 0,
+      high: row.high_price ?? 0,
+      low: row.low_price ?? 0,
+      close: row.close_price ?? 0,
+    }))
+}
+
+export function formatKRW(value: number, unit: 'won' | 'billion' = 'won'): string {
+  if (unit === 'billion') {
+    if (value >= 10000) {
+      return `${(value / 10000).toFixed(1)}조`
+    }
+    return `${value.toLocaleString()}억`
+  }
+
+  return `₩${value.toLocaleString()}`
+}
+
 export interface USMarketIndex {
   name: string
   change: 'up' | 'down' | 'neutral'
 }
 
-// Mock data for demonstration
-export const mockStocks: Stock[] = [
-  {
-    id: '1',
-    name: '에코프로비엠',
-    ticker: '247540',
-    closingPrice: 285000,
-    changePercent: 29.5,
-    tradingValue: 850,
-    marketCap: 12500,
-    theme: '2차전지',
-    sector: '전기전자',
-    market: 'KOSDAQ',
-    hasHighVolume: true,
-    recentTrend: '최근 5거래일 연속 상승세. 기관 순매수 지속. 2차전지 섹터 강세 흐름 편승.',
-  },
-  {
-    id: '2',
-    name: 'HLB',
-    ticker: '028300',
-    closingPrice: 78500,
-    changePercent: 27.8,
-    tradingValue: 620,
-    marketCap: 8900,
-    theme: '바이오',
-    sector: '의약품',
-    market: 'KOSDAQ',
-    hasHighVolume: true,
-    recentTrend: 'FDA 승인 기대감으로 급등. 외국인 대량 매수세 유입.',
-  },
-  {
-    id: '3',
-    name: '포스코퓨처엠',
-    ticker: '003670',
-    closingPrice: 425000,
-    changePercent: 26.3,
-    tradingValue: 520,
-    marketCap: 15800,
-    theme: '2차전지',
-    sector: '철강금속',
-    market: 'KOSPI',
-    hasHighVolume: false,
-    recentTrend: '양극재 수주 확대 기대감. 실적 호전 전망 발표.',
-  },
-  {
-    id: '4',
-    name: '레인보우로보틱스',
-    ticker: '277810',
-    closingPrice: 165000,
-    changePercent: 25.8,
-    tradingValue: 180,
-    marketCap: 3200,
-    theme: '로봇',
-    sector: '기계장비',
-    market: 'KOSDAQ',
-    hasHighVolume: true,
-    recentTrend: '삼성전자 협력 확대 소식에 급등. 로봇 테마 강세.',
-  },
-  {
-    id: '5',
-    name: 'LS일렉트릭',
-    ticker: '010120',
-    closingPrice: 198000,
-    changePercent: 25.2,
-    tradingValue: 95,
-    marketCap: 5900,
-    theme: '전력기기',
-    sector: '전기전자',
-    market: 'KOSPI',
-    hasHighVolume: false,
-    recentTrend: '미국 전력망 투자 확대 수혜 기대. 기관 매집 진행중.',
-  },
-]
-
-export const mock30DayHistory: DayHistory[] = [
-  { date: '2026-04-03', stockCount: 5 },
-  { date: '2026-04-02', stockCount: 3 },
-  { date: '2026-04-01', stockCount: 0 },
-  { date: '2026-03-31', stockCount: 7 },
-  { date: '2026-03-28', stockCount: 2 },
-  { date: '2026-03-27', stockCount: 4 },
-  { date: '2026-03-26', stockCount: 1 },
-  { date: '2026-03-25', stockCount: 0 },
-  { date: '2026-03-24', stockCount: 6 },
-  { date: '2026-03-21', stockCount: 3 },
-  { date: '2026-03-20', stockCount: 2 },
-  { date: '2026-03-19', stockCount: 5 },
-  { date: '2026-03-18', stockCount: 0 },
-  { date: '2026-03-17', stockCount: 4 },
-  { date: '2026-03-14', stockCount: 1 },
-]
-
-export const usMarketIndices: { spot: USMarketIndex[]; futures: USMarketIndex[] } = {
+export const usMarketIndices: {
+  spot: USMarketIndex[]
+  futures: USMarketIndex[]
+} = {
   spot: [
     { name: 'NASDAQ Composite', change: 'up' },
     { name: 'NASDAQ100', change: 'up' },
@@ -133,7 +181,10 @@ export const usMarketIndices: { spot: USMarketIndex[]; futures: USMarketIndex[] 
   ],
 }
 
-export function getMarketSignal(indices: { spot: USMarketIndex[]; futures: USMarketIndex[] }): {
+export function getMarketSignal(indices: {
+  spot: USMarketIndex[]
+  futures: USMarketIndex[]
+}): {
   signal: 'green' | 'yellow' | 'red'
   label: string
 } {
@@ -144,47 +195,60 @@ export function getMarketSignal(indices: { spot: USMarketIndex[]; futures: USMar
 
   if (upCount >= total * 0.6) {
     return { signal: 'green', label: '상승 우세' }
-  } else if (downCount >= total * 0.6) {
+  }
+
+  if (downCount >= total * 0.6) {
     return { signal: 'red', label: '하락 우세' }
   }
+
   return { signal: 'yellow', label: '혼조' }
 }
 
-// Generate chart data for mini candlestick (last 60 days)
-export function generateChartData() {
-  const data = []
-  let basePrice = 200000
-  
-  for (let i = 60; i >= 0; i--) {
-    const date = new Date()
-    date.setDate(date.getDate() - i)
-    
-    const volatility = Math.random() * 0.08 - 0.04
-    const open = basePrice * (1 + (Math.random() * 0.02 - 0.01))
-    const close = open * (1 + volatility)
-    const high = Math.max(open, close) * (1 + Math.random() * 0.02)
-    const low = Math.min(open, close) * (1 - Math.random() * 0.02)
-    
-    data.push({
-      date: date.toISOString().split('T')[0],
-      open: Math.round(open),
-      high: Math.round(high),
-      low: Math.round(low),
-      close: Math.round(close),
-    })
-    
-    basePrice = close
-  }
-  
-  return data
+export interface GlobalMarketSnapshot {
+  id: string
+  snapshot_date: string
+  snapshot_time: string
+  up_count: number
+  down_count: number
+  neutral_count: number
+  signal_status: 'bullish' | 'neutral' | 'bearish'
+  signal_label: string
 }
 
-export function formatKRW(value: number, unit: 'won' | 'billion' = 'won'): string {
-  if (unit === 'billion') {
-    if (value >= 10000) {
-      return `${(value / 10000).toFixed(1)}조`
-    }
-    return `${value.toLocaleString()}억`
+export interface GlobalMarketItem {
+  id: string
+  snapshot_id: string
+  indicator_code: string
+  indicator_name: string
+  current_value: number | null
+  previous_value: number | null
+  change_value: number | null
+  change_rate: number | null
+  direction: 'up' | 'down' | 'neutral'
+}
+
+export async function getLatestGlobalMarketSignal() {
+  const supabase = createClient()
+
+  const { data: snapshot, error: snapshotError } = await supabase
+    .from('global_market_snapshots')
+    .select('*')
+    .order('snapshot_time', { ascending: false })
+    .limit(1)
+    .single()
+
+  if (snapshotError) throw snapshotError
+
+  const { data: items, error: itemsError } = await supabase
+    .from('global_market_snapshot_items')
+    .select('*')
+    .eq('snapshot_id', snapshot.id)
+    .order('created_at', { ascending: true })
+
+  if (itemsError) throw itemsError
+
+  return {
+    snapshot: snapshot as GlobalMarketSnapshot,
+    items: (items ?? []) as GlobalMarketItem[],
   }
-  return `₩${value.toLocaleString()}`
 }

@@ -1,6 +1,8 @@
-'use client'
+// components/stock-table.tsx
 
-import { useState } from 'react'
+"use client";
+
+import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -8,20 +10,20 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Stock, formatKRW } from '@/lib/stock-data'
-import { cn } from '@/lib/utils'
-import { ArrowUpDown, ChevronUp, ChevronDown } from 'lucide-react'
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Stock, formatKRW } from "@/lib/stock-data";
+import { cn } from "@/lib/utils";
+import { ArrowUpDown, ChevronUp, ChevronDown } from "lucide-react";
 
-type SortField = 'name' | 'closingPrice' | 'marketCap' | 'tradingValue'
-type SortDirection = 'asc' | 'desc'
+type SortField = "name" | "closingPrice" | "marketCap" | "tradingValue";
+type SortDirection = "asc" | "desc";
 
 interface StockTableProps {
-  stocks: Stock[]
-  selectedStock: Stock | null
-  onSelectStock: (stock: Stock) => void
-  isLoading?: boolean
+  stocks: Stock[];
+  selectedStock: Stock | null;
+  onSelectStock: (stock: Stock) => void;
+  isLoading?: boolean;
 }
 
 export function StockTable({
@@ -30,47 +32,47 @@ export function StockTable({
   onSelectStock,
   isLoading,
 }: StockTableProps) {
-  const [sortField, setSortField] = useState<SortField>('marketCap')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+  const [sortField, setSortField] = useState<SortField>("marketCap");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      setSortField(field)
-      setSortDirection('desc')
+      setSortField(field);
+      setSortDirection("desc");
     }
-  }
+  };
 
   const sortedStocks = [...stocks].sort((a, b) => {
-    const multiplier = sortDirection === 'asc' ? 1 : -1
+    const multiplier = sortDirection === "asc" ? 1 : -1;
     switch (sortField) {
-      case 'name':
-        return multiplier * a.name.localeCompare(b.name)
-      case 'closingPrice':
-        return multiplier * (a.closingPrice - b.closingPrice)
-      case 'marketCap':
-        return multiplier * (a.marketCap - b.marketCap)
-      case 'tradingValue':
-        return multiplier * (a.tradingValue - b.tradingValue)
+      case "name":
+        return multiplier * a.name.localeCompare(b.name);
+      case "closingPrice":
+        return multiplier * (a.closingPrice - b.closingPrice);
+      case "marketCap":
+        return multiplier * (a.marketCap - b.marketCap);
+      case "tradingValue":
+        return multiplier * (a.tradingValue - b.tradingValue);
       default:
-        return 0
+        return 0;
     }
-  })
+  });
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) {
-      return <ArrowUpDown className="ml-1 h-3 w-3 text-muted-foreground" />
+      return <ArrowUpDown className="ml-1 h-3 w-3 text-muted-foreground" />;
     }
-    return sortDirection === 'asc' ? (
+    return sortDirection === "asc" ? (
       <ChevronUp className="ml-1 h-3 w-3" />
     ) : (
       <ChevronDown className="ml-1 h-3 w-3" />
-    )
-  }
+    );
+  };
 
   if (isLoading) {
-    return <StockTableSkeleton />
+    return <StockTableSkeleton />;
   }
 
   return (
@@ -79,7 +81,7 @@ export function StockTable({
         <TableRow className="hover:bg-transparent border-border/50">
           <TableHead
             className="cursor-pointer select-none"
-            onClick={() => handleSort('name')}
+            onClick={() => handleSort("name")}
           >
             <span className="flex items-center">
               종목명
@@ -88,7 +90,7 @@ export function StockTable({
           </TableHead>
           <TableHead
             className="cursor-pointer select-none text-right"
-            onClick={() => handleSort('closingPrice')}
+            onClick={() => handleSort("closingPrice")}
           >
             <span className="flex items-center justify-end">
               종가
@@ -97,7 +99,7 @@ export function StockTable({
           </TableHead>
           <TableHead
             className="cursor-pointer select-none text-right"
-            onClick={() => handleSort('marketCap')}
+            onClick={() => handleSort("marketCap")}
           >
             <span className="flex items-center justify-end">
               시가총액
@@ -114,9 +116,9 @@ export function StockTable({
             key={stock.id}
             onClick={() => onSelectStock(stock)}
             className={cn(
-              'cursor-pointer transition-colors border-border/50',
-              selectedStock?.id === stock.id && 'bg-accent',
-              stock.hasHighVolume && 'bg-red-950/20'
+              "cursor-pointer transition-colors border-border/50",
+              selectedStock?.id === stock.id && "bg-accent",
+              stock.hasHighVolume && "bg-red-950/20"
             )}
           >
             <TableCell className="font-medium">
@@ -129,13 +131,18 @@ export function StockTable({
               {formatKRW(stock.closingPrice)}
             </TableCell>
             <TableCell className="text-right font-mono text-muted-foreground">
-              {formatKRW(stock.marketCap, 'billion')}
+              {formatKRW(stock.marketCap, "billion")}
             </TableCell>
             <TableCell>
               <div className="flex flex-wrap gap-1">
-                <Badge variant="secondary" className="text-xs bg-secondary/50">
-                  {stock.theme}
-                </Badge>
+                {stock.theme && stock.theme !== "미분류" && (
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-secondary/50"
+                  >
+                    {stock.theme}
+                  </Badge>
+                )}
                 <Badge variant="outline" className="text-xs border-border/50">
                   {stock.sector}
                 </Badge>
@@ -143,12 +150,12 @@ export function StockTable({
             </TableCell>
             <TableCell>
               <Badge
-                variant={stock.market === 'KOSPI' ? 'default' : 'secondary'}
+                variant={stock.market === "KOSPI" ? "default" : "secondary"}
                 className={cn(
-                  'text-xs',
-                  stock.market === 'KOSPI'
-                    ? 'bg-blue-600/80 text-blue-50'
-                    : 'bg-emerald-600/80 text-emerald-50'
+                  "text-xs",
+                  stock.market === "KOSPI"
+                    ? "bg-blue-600/80 text-blue-50"
+                    : "bg-emerald-600/80 text-emerald-50"
                 )}
               >
                 {stock.market}
@@ -158,7 +165,7 @@ export function StockTable({
         ))}
       </TableBody>
     </Table>
-  )
+  );
 }
 
 function StockTableSkeleton() {
@@ -201,5 +208,5 @@ function StockTableSkeleton() {
         ))}
       </TableBody>
     </Table>
-  )
+  );
 }

@@ -1,32 +1,26 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
-
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts"
-
-console.log("Hello from Functions!")
+import { getKisAccessToken } from '../_shared/kis-api.ts'
+import { saveStockHistory } from '../_shared/stock-history.ts'
 
 Deno.serve(async (req) => {
-  const { name } = await req.json()
-  const data = {
-    message: `Hello ${name}!`,
+  try {
+    const body = await req.json().catch(() => ({}))
+    const stockCode = body.stock_code ?? '005930'
+
+    const accessToken = await getKisAccessToken()
+    const savedCount = await saveStockHistory(accessToken, stockCode)
+
+    return Response.json({
+      ok: true,
+      stock_code: stockCode,
+      saved_count: savedCount,
+    })
+  } catch (error) {
+    return Response.json(
+      {
+        ok: false,
+        message: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
   }
-
-  return new Response(
-    JSON.stringify(data),
-    { headers: { "Content-Type": "application/json" } },
-  )
 })
-
-/* To invoke locally:
-
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
-
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/fetch-stock-history' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
-
-*/

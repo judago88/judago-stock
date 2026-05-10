@@ -1,3 +1,5 @@
+// app/page.tsx
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,7 +20,12 @@ import { StockDetailModal } from "@/components/stock-detail-modal";
 import { USMarketSignal } from "@/components/us-market-signal";
 import { HistorySection } from "@/components/history-section";
 import { DateSelector } from "@/components/date-selector";
-import { Stock, mockStocks, mock30DayHistory } from "@/lib/stock-data";
+import {
+  Stock,
+  DayHistory,
+  getStocksByDate,
+  getSignalHistory,
+} from "@/lib/stock-data";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ExternalLink, Filter, AlertCircle } from "lucide-react";
 import Link from "next/link";
@@ -31,6 +38,7 @@ export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [dataState, setDataState] = useState<DataState>("loading");
   const [stocks, setStocks] = useState<Stock[]>([]);
+  const [history, setHistory] = useState<DayHistory[]>([]);
   const [mobileModalOpen, setMobileModalOpen] = useState(false);
   const isMobile = useIsMobile();
 
@@ -38,33 +46,32 @@ export default function DashboardPage() {
 
   // Simulate data loading based on selected date
   useEffect(() => {
-    setDataState("loading");
-    setSelectedStock(null);
+    const loadData = async () => {
+      try {
+        setDataState("loading");
+        setSelectedStock(null);
 
-    const timer = setTimeout(() => {
-      const historyItem = mock30DayHistory.find(
-        (h) => h.date === selectedDateStr
-      );
+        const [stocksData, historyData] = await Promise.all([
+          getStocksByDate(selectedDateStr),
+          getSignalHistory(30),
+        ]);
 
-      if (historyItem && historyItem.stockCount > 0) {
-        // Show stocks proportional to the count in history
-        const stocksToShow = mockStocks.slice(
-          0,
-          Math.min(historyItem.stockCount, mockStocks.length)
-        );
-        setStocks(stocksToShow);
-        setDataState("success");
-      } else if (historyItem && historyItem.stockCount === 0) {
+        setStocks(stocksData);
+        setHistory(historyData);
+
+        if (stocksData.length > 0) {
+          setDataState("success");
+        } else {
+          setDataState("empty");
+        }
+      } catch (error) {
+        console.error(error);
         setStocks([]);
-        setDataState("empty");
-      } else {
-        // Default to showing all mock stocks for current/unknown dates
-        setStocks(mockStocks);
-        setDataState("success");
+        setDataState("error");
       }
-    }, 800);
+    };
 
-    return () => clearTimeout(timer);
+    loadData();
   }, [selectedDateStr]);
 
   const handleStockSelect = (stock: Stock) => {
@@ -184,7 +191,7 @@ export default function DashboardPage() {
 
             {/* History Section */}
             <HistorySection
-              history={mock30DayHistory}
+              history={history}
               selectedDate={selectedDateStr}
               onSelectDate={handleDateFromHistory}
             />
@@ -199,7 +206,7 @@ export default function DashboardPage() {
             </div>
             <div className="md:col-span-1">
               <HistorySection
-                history={mock30DayHistory.slice(0, 7)}
+                history={history.slice(0, 7)}
                 selectedDate={selectedDateStr}
                 onSelectDate={handleDateFromHistory}
               />
@@ -267,16 +274,6 @@ export default function DashboardPage() {
             </Button>
           </div>
 
-          {/* US Market Signal - Compact */}
-          <USMarketSignal />
-
-          {/* History - Horizontal scroll */}
-          <HistorySection
-            history={mock30DayHistory.slice(0, 10)}
-            selectedDate={selectedDateStr}
-            onSelectDate={handleDateFromHistory}
-          />
-
           {/* Stock Cards */}
           <div className="space-y-3">
             {dataState === "loading" && (
@@ -298,6 +295,16 @@ export default function DashboardPage() {
             {dataState === "error" && <ErrorState />}
           </div>
 
+          {/* US Market Signal - Compact */}
+          <USMarketSignal />
+
+          {/* History - Horizontal scroll */}
+          <HistorySection
+            history={history.slice(0, 10)}
+            selectedDate={selectedDateStr}
+            onSelectDate={handleDateFromHistory}
+          />
+
           {/* Mobile Detail Modal */}
           <StockDetailModal
             stock={selectedStock}
@@ -317,11 +324,8 @@ function EmptyState() {
         <EmptyMedia variant="icon">
           <Filter className="w-6 h-6" />
         </EmptyMedia>
-        <EmptyTitle>오늘 조건 충족 종목 없음</EmptyTitle>
-        <EmptyDescription>
-          거래대금 ≥ 500억원, 일간 상승률 ≥ +25% 조건을 충족하는 종목이
-          없습니다.
-        </EmptyDescription>
+        <EmptyTitle>조건 충족 종목 없음</EmptyTitle>
+        <EmptyDescription></EmptyDescription>
       </EmptyHeader>
     </Empty>
   );
