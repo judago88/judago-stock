@@ -3,7 +3,8 @@
 import { useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-const AUTO_LOGOUT_TIME = 30 * 60 * 1000;
+const AUTO_LOGOUT_TIME = 30 * 60 * 1000; // 30분
+// const AUTO_LOGOUT_TIME = 10 * 1000; // 10초
 
 export function AutoLogout() {
   const supabase = createClient();
