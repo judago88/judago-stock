@@ -52,14 +52,22 @@ export async function getActiveStockSignalCondition() {
   return data as StockSignalCondition
 }
 
-export async function getStocksByDate(date: string): Promise<Stock[]> {
+export async function getStocksByDate(
+  date: string,
+  page = 0,
+  pageSize = 20,
+): Promise<Stock[]> {
   const supabase = createClient()
+
+  const from = page * pageSize
+  const to = from + pageSize - 1
 
   const { data, error } = await supabase
     .from('stock_signals')
     .select('*')
     .eq('signal_date', date)
     .order('trade_amount', { ascending: false })
+    .range(from, to)
 
   if (error) throw error
 

@@ -44,6 +44,12 @@ export default function DashboardPage() {
 
   const selectedDateStr = selectedDate.toISOString().split("T")[0];
 
+  const PAGE_SIZE = 20;
+
+  const [stockPage, setStockPage] = useState(0);
+  const [hasMoreStocks, setHasMoreStocks] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
   // Simulate data loading based on selected date
   useEffect(() => {
     const loadData = async () => {
@@ -52,12 +58,15 @@ export default function DashboardPage() {
         setSelectedStock(null);
 
         const [stocksData, historyData] = await Promise.all([
-          getStocksByDate(selectedDateStr),
+          getStocksByDate(selectedDateStr, 0, PAGE_SIZE),
           getSignalHistory(30),
         ]);
 
         setStocks(stocksData);
         setHistory(historyData);
+
+        setStockPage(0);
+        setHasMoreStocks(stocksData.length === PAGE_SIZE);
 
         if (stocksData.length > 0) {
           setDataState("success");
@@ -84,6 +93,40 @@ export default function DashboardPage() {
   const handleDateFromHistory = (dateStr: string) => {
     setSelectedDate(new Date(dateStr));
   };
+
+  const handleLoadMoreStocks = async () => {
+    try {
+      setIsLoadingMore(true);
+
+      const nextPage = stockPage + 1;
+      const moreStocks = await getStocksByDate(
+        selectedDateStr,
+        nextPage,
+        PAGE_SIZE
+      );
+
+      setStocks((prev) => [...prev, ...moreStocks]);
+      setStockPage(nextPage);
+      setHasMoreStocks(moreStocks.length === PAGE_SIZE);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  const LoadMoreButton = () =>
+    dataState === "success" && hasMoreStocks ? (
+      <div className="mt-4 flex justify-center">
+        <Button
+          variant="outline"
+          onClick={handleLoadMoreStocks}
+          disabled={isLoadingMore}
+        >
+          {isLoadingMore ? "불러오는 중..." : "더보기"}
+        </Button>
+      </div>
+    ) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -176,6 +219,7 @@ export default function DashboardPage() {
                 {dataState === "error" && <ErrorState />}
               </CardContent>
             </Card>
+            <LoadMoreButton />
             <StockUsageGuide />
           </div>
 
@@ -234,7 +278,7 @@ export default function DashboardPage() {
               {dataState === "error" && <ErrorState />}
             </CardContent>
           </Card>
-
+          <LoadMoreButton />
           {selectedStock && (
             <div className="h-[400px]">
               <StockDetailPanel stock={selectedStock} />
@@ -294,6 +338,7 @@ export default function DashboardPage() {
             {dataState === "empty" && <EmptyState />}
             {dataState === "error" && <ErrorState />}
           </div>
+          <LoadMoreButton />
 
           {/* US Market Signal - Compact */}
           <USMarketSignal />
