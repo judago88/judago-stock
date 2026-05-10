@@ -13,7 +13,9 @@ import {
   TrendingUp,
   ShieldCheck,
   Clock,
+  Download,
 } from "lucide-react";
+import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 
 interface Ebook {
   id: string;
@@ -49,6 +51,9 @@ export default function EbookPage() {
   const [ebook, setEbook] = useState<Ebook | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [paidOrderId, setPaidOrderId] = useState<string | null>(null);
+  const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     const loadEbook = async () => {
@@ -65,12 +70,32 @@ export default function EbookPage() {
 
         if (error) throw error;
 
-        setEbook(data as Ebook);
+        const ebookData = data as Ebook;
+        setEbook(ebookData);
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session) {
+          const { data: paidOrder } = await supabase
+            .from("ebook_orders")
+            .select("order_id")
+            .eq("ebook_id", ebookData.id)
+            .eq("user_id", session.user.id)
+            .eq("status", "paid")
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          setPaidOrderId(paidOrder?.order_id ?? null);
+        }
       } catch (error) {
         console.error(error);
         setEbook(null);
       } finally {
         setIsLoading(false);
+        setIsCheckingPurchase(false);
       }
     };
 
@@ -126,7 +151,32 @@ export default function EbookPage() {
 
       console.log("created order:", result.order);
 
-      alert(`주문이 생성되었습니다.\n주문번호: ${result.order.order_id}`);
+      const tossClientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
+
+      if (!tossClientKey) {
+        throw new Error("Toss Client Key가 설정되어 있지 않습니다.");
+      }
+
+      const tossPayments = await loadTossPayments(tossClientKey);
+
+      const payment = tossPayments.payment({
+        customerKey: session.user.id,
+      });
+
+      await payment.requestPayment({
+        method: "CARD",
+        amount: {
+          currency: "KRW",
+          value: result.order.amount,
+        },
+        orderId: result.order.order_id,
+        orderName: result.order.ebook_title,
+        customerName:
+          session.user.user_metadata?.name ?? session.user.email ?? "구매자",
+        customerEmail: session.user.email ?? undefined,
+        successUrl: `${window.location.origin}/payment/success`,
+        failUrl: `${window.location.origin}/payment/fail`,
+      });
 
       // 다음 단계에서 Toss 결제창으로 이동 처리 예정
     } catch (error) {
@@ -138,6 +188,68 @@ export default function EbookPage() {
       );
     } finally {
       setIsCreatingOrder(false);
+    }
+  };
+
+  const handleDownloadClick = async () => {
+    if (!paidOrderId) return;
+
+    try {
+      setIsDownloading(true);
+
+      const supabase = createClient();
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        throw new Error("로그인이 필요합니다.");
+      }
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/download-ebook`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            order_id: paidOrderId,
+          }),
+        }
+      );
+
+      const result = await res.json();
+
+      if (!res.ok || !result.ok) {
+        throw new Error(result.message ?? "다운로드 실패");
+      }
+
+      // window.location.href = result.download_url;
+      const fileRes = await fetch(result.download_url);
+      const blob = await fileRes.blob();
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = `${ebook?.title ?? "전자책"}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "다운로드 중 오류가 발생했습니다."
+      );
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -252,11 +364,30 @@ export default function EbookPage() {
                   <Button
                     size="lg"
                     className="w-full bg-red-500 hover:bg-red-600 text-white"
-                    disabled={!ebook || isLoading || isCreatingOrder}
-                    onClick={handlePurchaseClick}
+                    disabled={
+                      !ebook ||
+                      isLoading ||
+                      isCreatingOrder ||
+                      isCheckingPurchase ||
+                      isDownloading
+                    }
+                    onClick={
+                      paidOrderId ? handleDownloadClick : handlePurchaseClick
+                    }
                   >
-                    <TrendingUp className="w-5 h-5 mr-2" />
-                    {isCreatingOrder
+                    {paidOrderId ? (
+                      <Download className="w-5 h-5 mr-2" />
+                    ) : (
+                      <TrendingUp className="w-5 h-5 mr-2" />
+                    )}
+
+                    {isCheckingPurchase
+                      ? "구매 내역 확인 중..."
+                      : isDownloading
+                      ? "다운로드 준비 중..."
+                      : paidOrderId
+                      ? "전자책 다운로드"
+                      : isCreatingOrder
                       ? "주문 생성 중..."
                       : isLoading
                       ? "불러오는 중..."
@@ -327,12 +458,29 @@ export default function EbookPage() {
           <div className="mt-10 text-center">
             <Button
               size="lg"
-              className="bg-red-500 hover:bg-red-600 text-white px-8"
-              disabled={!ebook || isLoading || isCreatingOrder}
-              onClick={handlePurchaseClick}
+              className="w-full bg-red-500 hover:bg-red-600 text-white"
+              disabled={
+                !ebook ||
+                isLoading ||
+                isCreatingOrder ||
+                isCheckingPurchase ||
+                isDownloading
+              }
+              onClick={paidOrderId ? handleDownloadClick : handlePurchaseClick}
             >
-              <TrendingUp className="w-5 h-5 mr-2" />
-              {isCreatingOrder
+              {paidOrderId ? (
+                <Download className="w-5 h-5 mr-2" />
+              ) : (
+                <TrendingUp className="w-5 h-5 mr-2" />
+              )}
+
+              {isCheckingPurchase
+                ? "구매 내역 확인 중..."
+                : isDownloading
+                ? "다운로드 준비 중..."
+                : paidOrderId
+                ? "전자책 다운로드"
+                : isCreatingOrder
                 ? "주문 생성 중..."
                 : isLoading
                 ? "불러오는 중..."
