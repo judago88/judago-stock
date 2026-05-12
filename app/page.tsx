@@ -30,6 +30,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { ExternalLink, Filter, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { AuthButtons } from "@/components/auth-buttons";
+import { NoticeBanner } from "@/components/notice-banner";
+import { Notice, getLatestNotice } from "@/lib/stock-data";
 
 type DataState = "loading" | "success" | "empty" | "error";
 
@@ -40,6 +42,7 @@ export default function DashboardPage() {
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [history, setHistory] = useState<DayHistory[]>([]);
   const [mobileModalOpen, setMobileModalOpen] = useState(false);
+  const [latestNotice, setLatestNotice] = useState<Notice | null>(null);
   const isMobile = useIsMobile();
 
   const selectedDateStr = selectedDate.toISOString().split("T")[0];
@@ -57,13 +60,16 @@ export default function DashboardPage() {
         setDataState("loading");
         setSelectedStock(null);
 
-        const [stocksData, historyData] = await Promise.all([
+        const [stocksData, historyData, noticeData] = await Promise.all([
           getStocksByDate(selectedDateStr, 0, PAGE_SIZE),
           getSignalHistory(30),
+          getLatestNotice(),
         ]);
 
         setStocks(stocksData);
         setHistory(historyData);
+        console.log("noticeData in page:", noticeData);
+        setLatestNotice(noticeData);
 
         setStockPage(0);
         setHasMoreStocks(stocksData.length === PAGE_SIZE);
@@ -183,6 +189,9 @@ export default function DashboardPage() {
           </div>
         </div>
       </header>
+
+      {/* 공지 영역 */}
+      <NoticeBanner notice={latestNotice} />
 
       {/* Filter Conditions Info */}
       <div className="border-b border-border/50 bg-secondary/20">

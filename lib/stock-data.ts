@@ -260,3 +260,32 @@ export async function getLatestGlobalMarketSignal() {
     items: (items ?? []) as GlobalMarketItem[],
   }
 }
+
+export interface Notice {
+  id: string
+  title: string
+  content: string | null
+  type: string
+  is_pinned: boolean
+  created_at: string
+}
+
+export async function getLatestNotice(): Promise<Notice | null> {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('notices')
+    .select('*')
+    .eq('is_active', true)
+    .order('is_pinned', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  console.log('getLatestNotice data:', data)
+  console.log('getLatestNotice error:', error)
+
+  if (error) throw error
+
+  return data
+}
