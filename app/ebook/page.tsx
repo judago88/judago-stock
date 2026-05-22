@@ -31,10 +31,10 @@ interface Ebook {
 
 const ebookFeatures = [
   "기준봉 매매법의 핵심 원리와 실전 적용",
-  "손절 및 익절 기준 설정 방법",
-  "거래량과 캔들 패턴 분석 기법",
-  "실제 매매 사례 중심의 학습 구성",
-  "초보자도 따라할 수 있는 단계별 가이드",
+  "진입 · 익절 · 손절 기준 설정 방법",
+  "캔들과 이동평균선 패턴 조합 분석",
+  "다양한 차트 중심의 학습 구성",
+  "초보자도 쉽게 따라할 수 있는 올인원 패키지",
   "시장 상황별 대응 전략",
 ];
 
@@ -54,6 +54,9 @@ export default function EbookPage() {
   const [paidOrderId, setPaidOrderId] = useState<string | null>(null);
   const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
+  const coverImageUrl = ebook?.cover_image_path
+    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/ebook-covers/${ebook.cover_image_path}`
+    : null;
 
   useEffect(() => {
     const loadEbook = async () => {
@@ -287,7 +290,7 @@ export default function EbookPage() {
                 : ebook?.title ?? "판매 중인 전자책이 없습니다"}
             </h1>
 
-            <p className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto text-pretty">
+            <p className="text-muted-foreground text-lg md:text-xl max-w-3xl mx-auto text-pretty leading-8">
               {ebook?.subtitle ??
                 ebook?.description ??
                 "현재 판매 중인 전자책 정보를 확인할 수 없습니다."}
@@ -299,16 +302,26 @@ export default function EbookPage() {
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="flex items-center justify-center">
                   <div className="relative">
-                    <div className="w-48 h-64 md:w-56 md:h-72 bg-gradient-to-br from-red-500/20 to-red-600/10 rounded-lg border border-border/50 flex items-center justify-center shadow-2xl">
-                      <div className="text-center p-6">
-                        <BookOpen className="w-12 h-12 text-red-400 mx-auto mb-3" />
-                        <p className="font-bold text-lg">
-                          {ebook?.title ?? "전자책"}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          PDF Guide
-                        </p>
-                      </div>
+                    <div className="w-48 h-64 md:w-56 md:h-72 rounded-lg border border-border/50 shadow-2xl overflow-hidden bg-gradient-to-br from-red-500/20 to-red-600/10">
+                      {coverImageUrl ? (
+                        <img
+                          src={coverImageUrl}
+                          alt={ebook?.title ?? "전자책 커버"}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="text-center p-6">
+                            <BookOpen className="w-12 h-12 text-red-400 mx-auto mb-3" />
+                            <p className="font-bold text-lg">
+                              {ebook?.title ?? "전자책"}
+                            </p>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              PDF Guide
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="absolute -top-2 -right-2">
@@ -344,19 +357,19 @@ export default function EbookPage() {
                   </div>
 
                   <div className="space-y-3 mb-6">
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-base">
                       <Clock className="w-4 h-4 text-muted-foreground" />
                       <span>결제 완료 후 PDF 다운로드 가능</span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm">
+                    <div className="flex items-center gap-2 text-base">
                       <ShieldCheck className="w-4 h-4 text-muted-foreground" />
                       <span>구매 내역 확인 후 안전하게 제공</span>
                     </div>
                   </div>
 
                   {ebook?.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed mb-6 bg-secondary/20 rounded-lg p-4">
+                    <p className="text-base text-muted-foreground leading-relaxed mb-6 bg-secondary/20 rounded-lg p-4">
                       {ebook.description}
                     </p>
                   )}
@@ -404,7 +417,7 @@ export default function EbookPage() {
 
           <Card className="border-border/50 bg-card/50 backdrop-blur mb-8">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-2xl">
                 <CheckCircle2 className="w-5 h-5 text-green-400" />이 책에서
                 배우는 내용
               </CardTitle>
@@ -415,41 +428,106 @@ export default function EbookPage() {
                 {ebookFeatures.map((feature, index) => (
                   <li key={index} className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
-                    <span className="text-sm">{feature}</span>
+                    <span className="text-base">{feature}</span>
                   </li>
                 ))}
               </ul>
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 bg-card/50 backdrop-blur">
+          <Card className="border-border/50 bg-card/50 backdrop-blur mb-8">
             <CardHeader>
-              <CardTitle>자주 묻는 질문</CardTitle>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <BookOpen className="w-5 h-5 text-red-400" />
+                기준봉 센터장 주다고
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              <div className="space-y-5 text-base leading-8 text-muted-foreground">
+                <p>
+                  안녕하세요, 기준봉 센터장 주다고입니다.
+                  <br />
+                  그동안 투자를 하면서 수많은 실패와 시련을 겪으면서도 주식을
+                  놓지 못한 이유는 제대로 된 매매기법만 가지고 있다면 퇴직
+                  후에도 안정적으로 수익을 취할 수 있다는 기대감이 있었기
+                  때문입니다.
+                </p>
+
+                <p>
+                  주식에는 보조지표를 이용한 수많은 차트매매기법이 존재합니다.
+                  <br />
+                  그러나, 보조지표는 말 그대로{" "}
+                  <span className="text-foreground font-medium">'보조'</span>
+                  지표일 뿐 매매의 근거가 될 수 없습니다.
+                </p>
+
+                <p>
+                  제가 실제로 10여 년간 여러가지 기법을 적용하여 매매를
+                  진행해오면서 기준봉매매는 높은 정확도가 입증된 매매법이며
+                  글솜씨가 없음에도 불구하고 충분히 공유가치가 있다고 판단되어
+                  전자책을 제작하게 되었습니다.
+                </p>
+
+                <p>
+                  정말 좋은 매매법은 초보자도 쉽게 따라 할 수 있어야 합니다.
+                  <br />
+                  결국, 내가 수익을 냈을 때 그것이 정답입니다.
+                </p>
+
+                <p>
+                  더이상 리딩방에 의존하지 마세요.
+                  <br />
+                  명확한 근거를 기반으로 본인 스스로 매매할 수 있는 능력을
+                  만들어 드리겠습니다.
+                </p>
+
+                <p>
+                  아직도 제대로 된 투자 방향을 잡지 못한 투자자분들에게 해당
+                  기준봉매매법이 유용하게 쓰였으면 좋겠습니다.
+                </p>
+
+                <div className="pt-2">
+                  <p className="text-lg font-semibold text-foreground">
+                    당신의 주식개념을 180도 바꿔드리겠습니다.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50 bg-card/50 backdrop-blur ">
+            <CardHeader>
+              <CardTitle className="text-2xl">자주 묻는 질문</CardTitle>
             </CardHeader>
 
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-medium mb-1">
+                <h4 className="font-medium mb-1 text-lg">
                   결제 후 바로 받을 수 있나요?
                 </h4>
-                <p className="text-sm text-muted-foreground">
-                  네, 결제 완료 후 PDF 파일 다운로드가 가능하도록 제공할
-                  예정입니다.
+                <p className="text-base text-muted-foreground">
+                  네, 해당 PDF 파일은 결제 완료 후 즉시 무제한 다운로드가
+                  가능합니다.
                 </p>
               </div>
 
               <div>
-                <h4 className="font-medium mb-1">파일은 어떤 형식인가요?</h4>
-                <p className="text-sm text-muted-foreground">
+                <h4 className="font-medium mb-1 text-lg">
+                  파일은 어떤 형식인가요?
+                </h4>
+                <p className="text-base text-muted-foreground">
                   PDF 전자책 형식으로 제공됩니다.
                 </p>
               </div>
 
               <div>
-                <h4 className="font-medium mb-1">초보자도 이해할 수 있나요?</h4>
-                <p className="text-sm text-muted-foreground">
-                  네, 기초 개념부터 실전 적용까지 단계적으로 이해할 수 있도록
-                  구성되어 있습니다.
+                <h4 className="font-medium mb-1 text-lg">
+                  초보자도 이해할 수 있나요?
+                </h4>
+                <p className="text-base text-muted-foreground">
+                  네, 주식을 처음 접한 초보자도 쉽게 따라할 수 있도록 기초
+                  개념부터 실전 적용까지 단계별로 구성되어 있습니다.
                 </p>
               </div>
             </CardContent>

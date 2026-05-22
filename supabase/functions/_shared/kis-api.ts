@@ -78,7 +78,7 @@ export async function getTopChangeRateStocks(
     FID_COND_SCR_DIV_CODE: '20170',
     FID_INPUT_ISCD: '0000',
     FID_RANK_SORT_CLS_CODE: '0',
-    FID_INPUT_CNT_1: '30',
+    FID_INPUT_CNT_1: '100',
     FID_PRC_CLS_CODE: '0',
     FID_INPUT_PRICE_1: '',
     FID_INPUT_PRICE_2: '',

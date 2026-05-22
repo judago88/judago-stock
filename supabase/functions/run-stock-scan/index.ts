@@ -83,12 +83,18 @@ Deno.serve(async () => {
     const accessToken = await getKisAccessToken()
     const topStocks = await getTopChangeRateStocks(accessToken)
 
+    console.log('topStocks count:', topStocks.length)
+    console.log('topStocks sample:', topStocks.slice(0, 10))
+
     const minChangeRate = Number(condition.min_change_rate)
     const minTradeAmount = Number(condition.min_trade_amount)
 
     const rateFilteredStocks = topStocks.filter((stock: any) => {
       return Number(stock.prdy_ctrt) >= minChangeRate
     })
+
+    console.log('rateFilteredStocks count:', rateFilteredStocks.length)
+    console.log('rateFilteredStocks sample:', rateFilteredStocks.slice(0, 10))
 
     const signalDate = new Date().toISOString().slice(0, 10)
     const results = []
@@ -98,6 +104,15 @@ Deno.serve(async () => {
       const detail = await getStockPrice(accessToken, stock.stck_shrn_iscd)
 
       if (!detail) continue
+
+      console.log('detail check:', {
+        code: stock.stck_shrn_iscd,
+        name: stock.hts_kor_isnm,
+        changeRate: detail.prdy_ctrt,
+        tradeAmount: detail.acml_tr_pbmn,
+        closePrice: detail.stck_prpr,
+        market: detail.rprs_mrkt_kor_name,
+      })
 
       const changeRate = Number(detail.prdy_ctrt)
       const tradeAmount = Number(detail.acml_tr_pbmn)

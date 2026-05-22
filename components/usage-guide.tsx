@@ -1,22 +1,31 @@
 export function StockUsageGuide() {
   return (
-    <section className="mt-12 px-6 text-sm text-muted-foreground">
-      <div className="space-y-3 leading-7">
-        <h2 className="text-base font-semibold text-foreground">
-          주다고 기준봉센터 사용방법
-        </h2>
+    <section className="mt-12 px-6 text-md text-muted-foreground">
+      <div className="space-y-4 leading-7">
+        <div className="space-y-2">
+          <p>
+            해당 웹사이트는{" "}
+            <span className="text-foreground font-medium">'기준봉'</span>이
+            출현한 주식 종목들이 매일 자동으로 업데이트됩니다.
+          </p>
 
-        <ol className="list-decimal space-y-1 pl-5">
-          <li>날짜별로 기준봉 종목들을 주식 어플 관심종목에 넣는다.</li>
-          <li>자유롭게 매수, 매도 타점을 잡는다.</li>
-          <li>
-            명확한 매매법이 없는 분들은 우측 상단 전자책을 참고하여 주시기
-            바랍니다.
-          </li>
-          <li>
-            매매과정에서 궁금한 사항은 우측 상단 Threads 메시지를 이용해주세요.
-          </li>
-        </ol>
+          <p>
+            세력추종매매 중 하나인{" "}
+            <span className="text-foreground font-medium">'기준봉매매법'</span>
+            으로 경제적 자유를 누려보시기 바랍니다.
+          </p>
+        </div>
+
+        <div className="space-y-3 pt-2">
+          <h2 className="text-base font-semibold text-foreground">
+            주다고 기준봉센터 이용방법
+          </h2>
+
+          <ol className="list-decimal space-y-1 pl-5">
+            <li>날짜별로 추출되는 종목들을 내 관심종목에 넣는다.</li>
+            <li>본인만의 매수, 매도 타점을 잡고 수익을 실현한다.</li>
+          </ol>
+        </div>
       </div>
     </section>
   );

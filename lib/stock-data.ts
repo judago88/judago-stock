@@ -289,3 +289,33 @@ export async function getLatestNotice(): Promise<Notice | null> {
 
   return data
 }
+
+export async function getNoticeById(id: string): Promise<Notice | null> {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('notices')
+    .select('*')
+    .eq('id', id)
+    .eq('is_active', true)
+    .maybeSingle()
+
+  if (error) throw error
+
+  return data
+}
+
+export async function getNotices(): Promise<Notice[]> {
+  const supabase = createClient()
+
+  const { data, error } = await supabase
+    .from('notices')
+    .select('*')
+    .eq('is_active', true)
+    .order('is_pinned', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+
+  return data ?? []
+}

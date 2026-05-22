@@ -32,6 +32,8 @@ import Link from "next/link";
 import { AuthButtons } from "@/components/auth-buttons";
 import { NoticeBanner } from "@/components/notice-banner";
 import { Notice, getLatestNotice } from "@/lib/stock-data";
+import { Footer } from "@/components/footer";
+import { InvestmentDisclaimer } from "@/components/investment-disclaimer";
 
 type DataState = "loading" | "success" | "empty" | "error";
 
@@ -91,7 +93,8 @@ export default function DashboardPage() {
 
   const handleStockSelect = (stock: Stock) => {
     setSelectedStock(stock);
-    if (isMobile) {
+
+    if (window.innerWidth < 1024) {
       setMobileModalOpen(true);
     }
   };
@@ -144,9 +147,12 @@ export default function DashboardPage() {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <Filter className="w-5 h-5 text-red-400" />
-                <h1 className="text-lg font-bold hidden sm:block">
+                <Link
+                  href="/"
+                  className="hidden sm:block text-lg font-bold hover:text-red-400 transition-colors"
+                >
                   주다고 기준봉 센터
-                </h1>
+                </Link>
                 <h1 className="text-lg font-bold sm:hidden">기준봉 센터</h1>
               </div>
             </div>
@@ -177,6 +183,16 @@ export default function DashboardPage() {
                   variant="outline"
                   size="sm"
                   className="border-border/50"
+                  asChild
+                >
+                  <a href="mailto:jundd1@gmail.com?subject=주다고 문의">
+                    <ExternalLink className="w-4 h-4 mr-1.5" />
+                    문의하기
+                  </a>
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-red-500 hover:bg-red-600 text-white border-0"
                   asChild
                 >
                   <Link href="/ebook">
@@ -253,19 +269,7 @@ export default function DashboardPage() {
 
         {/* Tablet Layout */}
         <div className="hidden md:block lg:hidden space-y-6">
-          <div className="grid md:grid-cols-3 gap-4">
-            <div className="md:col-span-2">
-              <USMarketSignal />
-            </div>
-            <div className="md:col-span-1">
-              <HistorySection
-                history={history.slice(0, 7)}
-                selectedDate={selectedDateStr}
-                onSelectDate={handleDateFromHistory}
-              />
-            </div>
-          </div>
-
+          {/* 종목 리스트 먼저 */}
           <Card className="border-border/50 bg-card/50 backdrop-blur overflow-hidden">
             <CardContent className="p-0">
               {dataState === "loading" && (
@@ -276,6 +280,7 @@ export default function DashboardPage() {
                   isLoading
                 />
               )}
+
               {dataState === "success" && (
                 <StockTable
                   stocks={stocks}
@@ -283,16 +288,34 @@ export default function DashboardPage() {
                   onSelectStock={handleStockSelect}
                 />
               )}
+
               {dataState === "empty" && <EmptyState />}
               {dataState === "error" && <ErrorState />}
             </CardContent>
           </Card>
+
           <LoadMoreButton />
-          {selectedStock && (
-            <div className="h-[400px]">
-              <StockDetailPanel stock={selectedStock} />
+
+          {/* 글로벌 신호 + 히스토리 */}
+          <div className="grid md:grid-cols-3 gap-4">
+            <div className="md:col-span-2">
+              <USMarketSignal />
             </div>
-          )}
+
+            <div className="md:col-span-1">
+              <HistorySection
+                history={history.slice(0, 7)}
+                selectedDate={selectedDateStr}
+                onSelectDate={handleDateFromHistory}
+              />
+            </div>
+          </div>
+
+          <StockDetailModal
+            stock={selectedStock}
+            open={mobileModalOpen}
+            onOpenChange={setMobileModalOpen}
+          />
         </div>
 
         {/* Mobile Layout */}
@@ -317,7 +340,17 @@ export default function DashboardPage() {
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 border-border/50"
+              className="border-border/50"
+              asChild
+            >
+              <a href="mailto:jundd1@gmail.com?subject=주다고 문의">
+                <ExternalLink className="w-4 h-4 mr-1.5" />
+                문의하기
+              </a>
+            </Button>
+            <Button
+              size="sm"
+              className="bg-red-500 hover:bg-red-600 text-white border-0"
               asChild
             >
               <Link href="/ebook">
@@ -367,6 +400,8 @@ export default function DashboardPage() {
           />
         </div>
       </main>
+      <InvestmentDisclaimer />
+      <Footer />
     </div>
   );
 }
