@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { createClient } from "@/lib/supabase/client";
@@ -18,6 +18,14 @@ const emptyForm = {
 };
 
 export default function AdminStockPostFormPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminStockPostFormContent />
+    </Suspense>
+  );
+}
+
+function AdminStockPostFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");
@@ -128,6 +136,7 @@ export default function AdminStockPostFormPage() {
             <h1 className="text-2xl font-bold">
               {editId ? "기준봉 리포트 수정" : "기준봉 리포트 등록"}
             </h1>
+
             <p className="text-sm text-muted-foreground mt-1">
               장 마감 후 기준봉 리포트를 직접 작성합니다.
             </p>
@@ -135,11 +144,15 @@ export default function AdminStockPostFormPage() {
 
           <div>
             <label className="block text-sm font-medium mb-1">기준 날짜</label>
+
             <input
               type="date"
               value={form.post_date}
               onChange={(e) =>
-                setForm((prev) => ({ ...prev, post_date: e.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  post_date: e.target.value,
+                }))
               }
               className="w-full rounded-md border border-border/50 bg-background px-3 py-2 text-sm"
             />
@@ -147,10 +160,14 @@ export default function AdminStockPostFormPage() {
 
           <div>
             <label className="block text-sm font-medium mb-1">제목</label>
+
             <input
               value={form.title}
               onChange={(e) =>
-                setForm((prev) => ({ ...prev, title: e.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  title: e.target.value,
+                }))
               }
               placeholder="예: 2026년 5월 31일 기준봉 리포트"
               className="w-full rounded-md border border-border/50 bg-background px-3 py-2 text-sm"
@@ -159,10 +176,14 @@ export default function AdminStockPostFormPage() {
 
           <div>
             <label className="block text-sm font-medium mb-1">요약</label>
+
             <textarea
               value={form.summary}
               onChange={(e) =>
-                setForm((prev) => ({ ...prev, summary: e.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  summary: e.target.value,
+                }))
               }
               rows={3}
               placeholder="리포트 요약을 입력해주세요."
@@ -172,10 +193,14 @@ export default function AdminStockPostFormPage() {
 
           <div>
             <label className="block text-sm font-medium mb-1">상세 내용</label>
+
             <textarea
               value={form.content}
               onChange={(e) =>
-                setForm((prev) => ({ ...prev, content: e.target.value }))
+                setForm((prev) => ({
+                  ...prev,
+                  content: e.target.value,
+                }))
               }
               rows={14}
               placeholder="상세 내용을 입력해주세요."
@@ -185,6 +210,7 @@ export default function AdminStockPostFormPage() {
 
           <div>
             <label className="block text-sm font-medium mb-1">종목 수</label>
+
             <input
               type="number"
               min={0}

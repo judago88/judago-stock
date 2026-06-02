@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AdminLayout } from "@/components/admin/admin-layout";
 import { createClient } from "@/lib/supabase/client";
@@ -28,6 +28,14 @@ const emptyForm = {
 };
 
 export default function AdminNoticeFormPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminNoticeFormContent />
+    </Suspense>
+  );
+}
+
+function AdminNoticeFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");
@@ -200,10 +208,7 @@ export default function AdminNoticeFormPage() {
                 type="datetime-local"
                 value={form.starts_at}
                 onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    starts_at: e.target.value,
-                  }))
+                  setForm((prev) => ({ ...prev, starts_at: e.target.value }))
                 }
               />
             </div>
@@ -216,10 +221,7 @@ export default function AdminNoticeFormPage() {
                 type="datetime-local"
                 value={form.ends_at}
                 onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    ends_at: e.target.value,
-                  }))
+                  setForm((prev) => ({ ...prev, ends_at: e.target.value }))
                 }
               />
             </div>
@@ -253,13 +255,6 @@ export default function AdminNoticeFormPage() {
               />
               상단 고정
             </label>
-          </div>
-
-          <div className="rounded-lg border border-border/50 bg-secondary/20 p-4 text-xs text-muted-foreground leading-6">
-            <p>
-              노출 시작/종료일시를 비워두면 기간 제한 없이 노출됩니다. 활성화가
-              꺼져 있으면 기간 조건과 관계없이 사용자 화면에 노출되지 않습니다.
-            </p>
           </div>
 
           <div className="flex gap-2 pt-2">
