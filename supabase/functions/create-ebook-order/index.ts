@@ -11,41 +11,68 @@ function createOrderId() {
   return `ebook_${Date.now()}_${crypto.randomUUID()}`
 }
 
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', {
       headers: corsHeaders,
     })
   }
-  
+
+  if (req.method !== 'POST') {
+    return Response.json(
+      {
+        ok: false,
+        message: 'POST 요청만 허용됩니다.',
+      },
+      {
+        status: 405,
+        headers: corsHeaders,
+      },
+    )
+  }
+
   try {
-    const authHeader = req.headers.get('Authorization')
-
-    if (!authHeader) {
-      throw new Error('로그인이 필요합니다.')
-    }
-
-    const token = authHeader.replace('Bearer ', '')
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseAdmin.auth.getUser(token)
-
-    if (userError || !user) {
-      throw new Error('사용자 인증에 실패했습니다.')
-    }
-
     const body = await req.json().catch(() => ({}))
-    const ebookId = body.ebook_id
+
+    const ebookId =
+      typeof body.ebook_id === 'string' ? body.ebook_id.trim() : ''
+
+    const buyerName =
+      typeof body.buyer_name === 'string' ? body.buyer_name.trim() : ''
+
+    const buyerEmail =
+      typeof body.buyer_email === 'string'
+        ? body.buyer_email.trim().toLowerCase()
+        : ''
+
+    const buyerPhone =
+      typeof body.buyer_phone === 'string' && body.buyer_phone.trim()
+        ? body.buyer_phone.trim()
+        : null
 
     if (!ebookId) {
       throw new Error('ebook_id가 없습니다.')
     }
 
+    if (!buyerName) {
+      throw new Error('이름을 입력해주세요.')
+    }
+
+    if (!buyerEmail) {
+      throw new Error('이메일을 입력해주세요.')
+    }
+
+    if (!isValidEmail(buyerEmail)) {
+      throw new Error('올바른 이메일 형식을 입력해주세요.')
+    }
+
     const { data: ebook, error: ebookError } = await supabaseAdmin
       .from('ebooks')
-      .select('*')
+      .select('id, title, price, file_path, is_active')
       .eq('id', ebookId)
       .eq('is_active', true)
       .single()
@@ -54,26 +81,41 @@ Deno.serve(async (req) => {
       throw new Error('판매 중인 전자책을 찾을 수 없습니다.')
     }
 
+    if (!ebook.file_path) {
+      throw new Error('전자책 파일이 등록되어 있지 않습니다.')
+    }
+
     const orderId = createOrderId()
 
     const { data: order, error: orderError } = await supabaseAdmin
       .from('ebook_orders')
       .insert({
-        user_id: user.id,
+        user_id: null,
         ebook_id: ebook.id,
         order_id: orderId,
+        buyer_name: buyerName,
+        buyer_email: buyerEmail,
+        buyer_phone: buyerPhone,
         amount: ebook.price,
         status: 'ready',
       })
-      .select()
+      .select(
+        `
+        id,
+        order_id,
+        ebook_id,
+        amount,
+        status
+      `,
+      )
       .single()
 
-    if (orderError) {
-      throw new Error(`주문 생성 실패: ${orderError.message}`)
+    if (orderError || !order) {
+      throw new Error(`주문 생성 실패: ${orderError?.message ?? 'unknown'}`)
     }
 
     await supabaseAdmin.from('payment_logs').insert({
-      user_id: user.id,
+      user_id: null,
       order_id: orderId,
       event_type: 'ebook_order_created',
       status: 'ready',
@@ -81,6 +123,9 @@ Deno.serve(async (req) => {
       raw_payload: {
         ebook_id: ebook.id,
         ebook_title: ebook.title,
+        buyer_name: buyerName,
+        buyer_email: buyerEmail,
+        buyer_phone: buyerPhone,
       },
     })
 
@@ -92,8 +137,11 @@ Deno.serve(async (req) => {
           order_id: order.order_id,
           ebook_id: ebook.id,
           ebook_title: ebook.title,
-          amount: ebook.price,
+          amount: order.amount,
           status: order.status,
+          buyer_name: buyerName,
+          buyer_email: buyerEmail,
+          buyer_phone: buyerPhone,
         },
       },
       {
@@ -106,7 +154,8 @@ Deno.serve(async (req) => {
         ok: false,
         message: error instanceof Error ? error.message : String(error),
       },
-      { status: 400,
+      {
+        status: 400,
         headers: corsHeaders,
       },
     )

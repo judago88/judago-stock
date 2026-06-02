@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Loader2, AlertCircle, Download } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -30,23 +29,12 @@ export default function PaymentSuccessPage() {
           throw new Error("결제 승인에 필요한 정보가 없습니다.");
         }
 
-        const supabase = createClient();
-
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (!session) {
-          throw new Error("로그인이 필요합니다.");
-        }
-
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/confirm-ebook-payment`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${session.access_token}`,
             },
             body: JSON.stringify({
               paymentKey,
@@ -63,7 +51,9 @@ export default function PaymentSuccessPage() {
         }
 
         setState("success");
-        setMessage("결제가 완료되었습니다.");
+        setMessage(
+          "결제가 완료되었습니다. 아래 버튼을 눌러 전자책을 다운로드해주세요."
+        );
       } catch (error) {
         console.error(error);
         setState("error");
@@ -83,16 +73,10 @@ export default function PaymentSuccessPage() {
       setIsDownloading(true);
 
       const params = new URLSearchParams(window.location.search);
-      const orderId = params.get("orderId");
+      const orderIdParam = params.get("orderId");
 
-      const supabase = createClient();
-
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        throw new Error("로그인이 필요합니다.");
+      if (!orderIdParam) {
+        throw new Error("주문번호가 없습니다.");
       }
 
       const res = await fetch(
@@ -101,10 +85,9 @@ export default function PaymentSuccessPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
-            order_id: orderId,
+            order_id: orderIdParam,
           }),
         }
       );
@@ -115,7 +98,23 @@ export default function PaymentSuccessPage() {
         throw new Error(data.message ?? "다운로드 실패");
       }
 
-      window.location.href = data.download_url;
+      const fileRes = await fetch(data.download_url);
+      const blob = await fileRes.blob();
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = "기준봉매매법 전자책.pdf";
+      document.body.appendChild(a);
+      a.click();
+
+      a.remove();
+      window.URL.revokeObjectURL(url);
+
+      setMessage(
+        "다운로드 링크가 발급되었습니다. 해당 전자책은 1회에 한하여 다운로드 가능합니다."
+      );
     } catch (error) {
       console.error(error);
       alert(error instanceof Error ? error.message : "다운로드 실패");
@@ -148,11 +147,19 @@ export default function PaymentSuccessPage() {
                 ? "결제 확인 실패"
                 : "결제 확인 중"}
             </h1>
-            <p className="text-sm text-muted-foreground">{message}</p>
+
+            <p className="text-sm text-muted-foreground leading-6">{message}</p>
 
             {orderId && (
-              <p className="text-xs text-muted-foreground mt-3">
+              <p className="text-xs text-muted-foreground mt-3 break-all">
                 주문번호: {orderId}
+              </p>
+            )}
+
+            {state === "success" && (
+              <p className="text-xs text-muted-foreground mt-3 leading-5">
+                다운로드는 1회만 가능합니다. 다운로드 전 네트워크 상태를
+                확인해주세요.
               </p>
             )}
           </div>

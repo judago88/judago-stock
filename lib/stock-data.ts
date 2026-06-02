@@ -266,24 +266,52 @@ export interface Notice {
   title: string
   content: string | null
   type: string
+  is_active: boolean
   is_pinned: boolean
+  starts_at: string | null
+  ends_at: string | null
+  author: string | null
+  view_count: number
   created_at: string
+  updated_at: string
+}
+
+export async function getPinnedNotices() {
+  const supabase = createClient()
+
+  const now = new Date().toISOString()
+
+  const { data, error } = await supabase
+    .from("notices")
+    .select("*")
+    .eq("is_active", true)
+    .eq("is_pinned", true)
+    .or(`starts_at.is.null,starts_at.lte.${now}`)
+    .or(`ends_at.is.null,ends_at.gte.${now}`)
+    .order("created_at", {
+      ascending: false,
+    })
+
+  if (error) throw error
+
+  return data ?? []
 }
 
 export async function getLatestNotice(): Promise<Notice | null> {
   const supabase = createClient()
 
+  const now = new Date().toISOString()
+
   const { data, error } = await supabase
-    .from('notices')
-    .select('*')
-    .eq('is_active', true)
-    .order('is_pinned', { ascending: false })
-    .order('created_at', { ascending: false })
+    .from("notices")
+    .select("*")
+    .eq("is_active", true)
+    .or(`starts_at.is.null,starts_at.lte.${now}`)
+    .or(`ends_at.is.null,ends_at.gte.${now}`)
+    .order("is_pinned", { ascending: false })
+    .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle()
-
-  console.log('getLatestNotice data:', data)
-  console.log('getLatestNotice error:', error)
 
   if (error) throw error
 

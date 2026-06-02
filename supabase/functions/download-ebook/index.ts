@@ -15,23 +15,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const authHeader = req.headers.get('Authorization')
-
-    if (!authHeader) {
-      throw new Error('로그인이 필요합니다.')
-    }
-
-    const token = authHeader.replace('Bearer ', '')
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseAdmin.auth.getUser(token)
-
-    if (userError || !user) {
-      throw new Error('사용자 인증 실패')
-    }
-
     const body = await req.json()
     const orderId = body.order_id
 
@@ -41,9 +24,17 @@ Deno.serve(async (req) => {
 
     const { data: paidOrder, error: orderError } = await supabaseAdmin
       .from('ebook_orders')
-      .select('*, ebooks(*)')
+      .select(
+        `
+        *,
+        ebooks (
+          id,
+          title,
+          file_path
+        )
+      `,
+      )
       .eq('order_id', orderId)
-      .eq('user_id', user.id)
       .eq('status', 'paid')
       .single()
 
@@ -51,10 +42,20 @@ Deno.serve(async (req) => {
       throw new Error('결제 완료된 주문이 없습니다.')
     }
 
+    if (paidOrder.download_used === true) {
+      throw new Error(
+        '이미 다운로드가 완료된 주문입니다. 개정판 또는 재다운로드 문의는 문의하기를 이용해주세요.',
+      )
+    }
+
     const ebook = paidOrder.ebooks
 
     if (!ebook) {
       throw new Error('전자책 정보를 찾을 수 없습니다.')
+    }
+
+    if (!ebook.file_path) {
+      throw new Error('전자책 파일이 등록되어 있지 않습니다.')
     }
 
     const { data: signedData, error: signedError } =
@@ -68,8 +69,22 @@ Deno.serve(async (req) => {
       throw new Error('다운로드 링크 생성 실패')
     }
 
+    const downloadedAt = new Date().toISOString()
+
+    const { error: updateError } = await supabaseAdmin
+      .from('ebook_orders')
+      .update({
+        download_used: true,
+        downloaded_at: downloadedAt,
+      })
+      .eq('id', paidOrder.id)
+
+    if (updateError) {
+      throw new Error('다운로드 상태 업데이트 실패')
+    }
+
     await supabaseAdmin.from('ebook_download_logs').insert({
-      user_id: user.id,
+      user_id: null,
       ebook_id: ebook.id,
       order_id: paidOrder.order_id,
     })

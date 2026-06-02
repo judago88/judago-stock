@@ -13,7 +13,6 @@ import {
   TrendingUp,
   ShieldCheck,
   Clock,
-  Download,
 } from "lucide-react";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
 
@@ -47,13 +46,22 @@ function getDiscountRate(price: number, originalPrice: number | null) {
   return Math.round((1 - price / originalPrice) * 100);
 }
 
+function isValidEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
 export default function EbookPage() {
   const [ebook, setEbook] = useState<Ebook | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
-  const [paidOrderId, setPaidOrderId] = useState<string | null>(null);
-  const [isCheckingPurchase, setIsCheckingPurchase] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
+
+  const [buyerName, setBuyerName] = useState("");
+  const [buyerEmail, setBuyerEmail] = useState("");
+  const [buyerPhone, setBuyerPhone] = useState("");
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [agreePrivacy, setAgreePrivacy] = useState(false);
+  const [agreeRefund, setAgreeRefund] = useState(false);
+
   const coverImageUrl = ebook?.cover_image_path
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/ebook-covers/${ebook.cover_image_path}`
     : null;
@@ -73,32 +81,12 @@ export default function EbookPage() {
 
         if (error) throw error;
 
-        const ebookData = data as Ebook;
-        setEbook(ebookData);
-
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (session) {
-          const { data: paidOrder } = await supabase
-            .from("ebook_orders")
-            .select("order_id")
-            .eq("ebook_id", ebookData.id)
-            .eq("user_id", session.user.id)
-            .eq("status", "paid")
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-          setPaidOrderId(paidOrder?.order_id ?? null);
-        }
+        setEbook(data as Ebook);
       } catch (error) {
         console.error(error);
         setEbook(null);
       } finally {
         setIsLoading(false);
-        setIsCheckingPurchase(false);
       }
     };
 
@@ -112,25 +100,42 @@ export default function EbookPage() {
   const handlePurchaseClick = async () => {
     if (!ebook) return;
 
+    const trimmedName = buyerName.trim();
+    const trimmedEmail = buyerEmail.trim();
+    const trimmedPhone = buyerPhone.trim();
+
+    if (!trimmedName) {
+      alert("이름을 입력해주세요.");
+      return;
+    }
+
+    if (!trimmedEmail) {
+      alert("이메일을 입력해주세요.");
+      return;
+    }
+
+    if (!isValidEmail(trimmedEmail)) {
+      alert("올바른 이메일 형식을 입력해주세요.");
+      return;
+    }
+
+    if (!agreePrivacy) {
+      alert("개인정보처리방침에 동의해주세요.");
+      return;
+    }
+
+    if (!agreeRefund) {
+      alert("환불정책에 동의해주세요.");
+      return;
+    }
+
+    if (!agreeTerms) {
+      alert("이용약관에 동의해주세요.");
+      return;
+    }
+
     try {
       setIsCreatingOrder(true);
-
-      const supabase = createClient();
-
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        alert("구매를 진행하려면 로그인이 필요합니다.");
-        await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-            redirectTo: `${window.location.origin}/ebook`,
-          },
-        });
-        return;
-      }
 
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/create-ebook-order`,
@@ -138,10 +143,12 @@ export default function EbookPage() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
           },
           body: JSON.stringify({
             ebook_id: ebook.id,
+            buyer_name: trimmedName,
+            buyer_email: trimmedEmail,
+            buyer_phone: trimmedPhone || null,
           }),
         }
       );
@@ -152,8 +159,6 @@ export default function EbookPage() {
         throw new Error(result.message ?? "주문 생성에 실패했습니다.");
       }
 
-      console.log("created order:", result.order);
-
       const tossClientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY;
 
       if (!tossClientKey) {
@@ -163,7 +168,7 @@ export default function EbookPage() {
       const tossPayments = await loadTossPayments(tossClientKey);
 
       const payment = tossPayments.payment({
-        customerKey: session.user.id,
+        customerKey: "ANONYMOUS",
       });
 
       await payment.requestPayment({
@@ -174,14 +179,12 @@ export default function EbookPage() {
         },
         orderId: result.order.order_id,
         orderName: result.order.ebook_title,
-        customerName:
-          session.user.user_metadata?.name ?? session.user.email ?? "구매자",
-        customerEmail: session.user.email ?? undefined,
+        customerName: trimmedName,
+        customerEmail: trimmedEmail,
+        customerMobilePhone: trimmedPhone || undefined,
         successUrl: `${window.location.origin}/payment/success`,
         failUrl: `${window.location.origin}/payment/fail`,
       });
-
-      // 다음 단계에서 Toss 결제창으로 이동 처리 예정
     } catch (error) {
       console.error(error);
       alert(
@@ -191,68 +194,6 @@ export default function EbookPage() {
       );
     } finally {
       setIsCreatingOrder(false);
-    }
-  };
-
-  const handleDownloadClick = async () => {
-    if (!paidOrderId) return;
-
-    try {
-      setIsDownloading(true);
-
-      const supabase = createClient();
-
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      if (!session) {
-        throw new Error("로그인이 필요합니다.");
-      }
-
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/download-ebook`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            order_id: paidOrderId,
-          }),
-        }
-      );
-
-      const result = await res.json();
-
-      if (!res.ok || !result.ok) {
-        throw new Error(result.message ?? "다운로드 실패");
-      }
-
-      // window.location.href = result.download_url;
-      const fileRes = await fetch(result.download_url);
-      const blob = await fileRes.blob();
-
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-
-      a.href = url;
-      a.download = `${ebook?.title ?? "전자책"}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error(error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "다운로드 중 오류가 발생했습니다."
-      );
-    } finally {
-      setIsDownloading(false);
     }
   };
 
@@ -297,7 +238,10 @@ export default function EbookPage() {
             </p>
           </div>
 
-          <Card className="border-border/50 bg-card/50 backdrop-blur mb-8">
+          <Card
+            id="purchase-form"
+            className="border-border/50 bg-card/50 backdrop-blur mb-8"
+          >
             <CardContent className="p-6 md:p-8">
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="flex items-center justify-center">
@@ -359,12 +303,12 @@ export default function EbookPage() {
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center gap-2 text-base">
                       <Clock className="w-4 h-4 text-muted-foreground" />
-                      <span>결제 완료 후 PDF 다운로드 가능</span>
+                      <span>결제 완료 후 다운로드 링크가 1회 발급됩니다.</span>
                     </div>
 
                     <div className="flex items-center gap-2 text-base">
                       <ShieldCheck className="w-4 h-4 text-muted-foreground" />
-                      <span>구매 내역 확인 후 안전하게 제공</span>
+                      <span>구매자 정보와 주문번호 기준으로 안전하게 제공</span>
                     </div>
                   </div>
 
@@ -374,41 +318,114 @@ export default function EbookPage() {
                     </p>
                   )}
 
+                  <div className="space-y-3 mb-5">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        이름 <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={buyerName}
+                        onChange={(e) => setBuyerName(e.target.value)}
+                        placeholder="이름을 입력해주세요"
+                        className="w-full rounded-md border border-border/50 bg-background px-3 py-2 text-sm outline-none focus:border-red-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        이메일 <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        value={buyerEmail}
+                        onChange={(e) => setBuyerEmail(e.target.value)}
+                        placeholder="이메일을 입력해주세요"
+                        className="w-full rounded-md border border-border/50 bg-background px-3 py-2 text-sm outline-none focus:border-red-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        전화번호{" "}
+                        <span className="text-muted-foreground">(선택)</span>
+                      </label>
+                      <input
+                        type="tel"
+                        value={buyerPhone}
+                        onChange={(e) => setBuyerPhone(e.target.value)}
+                        placeholder="01012345678"
+                        className="w-full rounded-md border border-border/50 bg-background px-3 py-2 text-sm outline-none focus:border-red-400"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2 mb-5 rounded-lg border border-border/50 p-4">
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={agreeTerms}
+                        onChange={(e) => setAgreeTerms(e.target.checked)}
+                      />
+                      <Link
+                        href="/terms-of-service"
+                        target="_blank"
+                        className="underline hover:text-foreground"
+                      >
+                        이용약관
+                      </Link>
+                      에 동의합니다.
+                    </label>
+
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={agreePrivacy}
+                        onChange={(e) => setAgreePrivacy(e.target.checked)}
+                      />
+                      <Link
+                        href="/privacy-policy"
+                        target="_blank"
+                        className="underline hover:text-foreground"
+                      >
+                        개인정보처리방침
+                      </Link>
+                      에 동의합니다.
+                    </label>
+
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={agreeRefund}
+                        onChange={(e) => setAgreeRefund(e.target.checked)}
+                      />
+                      <Link
+                        href="/refund-policy"
+                        target="_blank"
+                        className="underline hover:text-foreground"
+                      >
+                        환불정책
+                      </Link>
+                      에 동의합니다.
+                    </label>
+                  </div>
                   <Button
                     size="lg"
                     className="w-full bg-red-500 hover:bg-red-600 text-white"
-                    disabled={
-                      !ebook ||
-                      isLoading ||
-                      isCreatingOrder ||
-                      isCheckingPurchase ||
-                      isDownloading
-                    }
-                    onClick={
-                      paidOrderId ? handleDownloadClick : handlePurchaseClick
-                    }
+                    disabled={!ebook || isLoading || isCreatingOrder}
+                    onClick={handlePurchaseClick}
                   >
-                    {paidOrderId ? (
-                      <Download className="w-5 h-5 mr-2" />
-                    ) : (
-                      <TrendingUp className="w-5 h-5 mr-2" />
-                    )}
-
-                    {isCheckingPurchase
-                      ? "구매 내역 확인 중..."
-                      : isDownloading
-                      ? "다운로드 준비 중..."
-                      : paidOrderId
-                      ? "전자책 다운로드"
-                      : isCreatingOrder
+                    <TrendingUp className="w-5 h-5 mr-2" />
+                    {isCreatingOrder
                       ? "주문 생성 중..."
                       : isLoading
                       ? "불러오는 중..."
                       : "지금 구매하기"}
                   </Button>
 
-                  <p className="text-xs text-muted-foreground text-center mt-3">
-                    안전한 결제 시스템으로 진행됩니다
+                  <p className="text-xs text-muted-foreground text-center mt-3 leading-5">
+                    결제 완료 후 다운로드 링크는 1회만 발급됩니다.
+                    <br />
+                    다운로드 전 네트워크 상태를 확인해주세요.
                   </p>
                 </div>
               </div>
@@ -496,7 +513,7 @@ export default function EbookPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-border/50 bg-card/50 backdrop-blur ">
+          <Card className="border-border/50 bg-card/50 backdrop-blur">
             <CardHeader>
               <CardTitle className="text-2xl">자주 묻는 질문</CardTitle>
             </CardHeader>
@@ -507,8 +524,8 @@ export default function EbookPage() {
                   결제 후 바로 받을 수 있나요?
                 </h4>
                 <p className="text-base text-muted-foreground">
-                  네, 해당 PDF 파일은 결제 완료 후 즉시 무제한 다운로드가
-                  가능합니다.
+                  네, 결제 완료 후 즉시 다운로드할 수 있습니다. 단, 해당
+                  전자책은 1회에 한하여 다운로드 가능합니다.
                 </p>
               </div>
 
@@ -523,11 +540,52 @@ export default function EbookPage() {
 
               <div>
                 <h4 className="font-medium mb-1 text-lg">
+                  개정판도 받을 수 있나요?
+                </h4>
+                <p className="text-base text-muted-foreground">
+                  추후 전자책 내용이 업데이트될 경우, 문의사항을 통해 연락주시면
+                  최초 구매자 확인 후 개정판을 무료로 제공해드립니다.
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-medium mb-1 text-lg">
                   초보자도 이해할 수 있나요?
                 </h4>
                 <p className="text-base text-muted-foreground">
                   네, 주식을 처음 접한 초보자도 쉽게 따라할 수 있도록 기초
                   개념부터 실전 적용까지 단계별로 구성되어 있습니다.
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium mb-1 text-lg">환불은 가능한가요?</h4>
+
+                <p className="text-base text-muted-foreground">
+                  디지털 콘텐츠 특성상 다운로드가 시작된 이후에는 환불이 제한될
+                  수 있습니다. 자세한 내용은 환불정책을 참고해주세요.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-yellow-500/20 bg-yellow-500/5 backdrop-blur mt-8">
+            <CardContent className="p-6">
+              <h3 className="font-semibold text-lg mb-3">투자 관련 안내</h3>
+
+              <div className="space-y-3 text-sm leading-7 text-muted-foreground">
+                <p>
+                  본 전자책은 주식 차트 분석 및 매매 기준 학습을 위한 교육용
+                  콘텐츠입니다.
+                </p>
+
+                <p>
+                  특정 종목의 매수·매도 추천, 투자자문, 투자일임, 수익 보장을
+                  목적으로 하지 않습니다.
+                </p>
+
+                <p>
+                  전자책에 포함된 예시는 학습을 위한 과거 사례이며, 모든 투자
+                  판단과 책임은 본인에게 있습니다.
                 </p>
               </div>
             </CardContent>
@@ -537,32 +595,12 @@ export default function EbookPage() {
             <Button
               size="lg"
               className="w-full bg-red-500 hover:bg-red-600 text-white"
-              disabled={
-                !ebook ||
-                isLoading ||
-                isCreatingOrder ||
-                isCheckingPurchase ||
-                isDownloading
-              }
-              onClick={paidOrderId ? handleDownloadClick : handlePurchaseClick}
+              asChild
             >
-              {paidOrderId ? (
-                <Download className="w-5 h-5 mr-2" />
-              ) : (
+              <a href="#purchase-form">
                 <TrendingUp className="w-5 h-5 mr-2" />
-              )}
-
-              {isCheckingPurchase
-                ? "구매 내역 확인 중..."
-                : isDownloading
-                ? "다운로드 준비 중..."
-                : paidOrderId
-                ? "전자책 다운로드"
-                : isCreatingOrder
-                ? "주문 생성 중..."
-                : isLoading
-                ? "불러오는 중..."
-                : "지금 구매하기"}
+                지금 구매하기
+              </a>
             </Button>
           </div>
         </div>

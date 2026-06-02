@@ -20,40 +20,38 @@ Deno.serve(async (req) => {
     })
   }
 
+  if (req.method !== 'POST') {
+    return Response.json(
+      {
+        ok: false,
+        message: 'POST 요청만 허용됩니다.',
+      },
+      {
+        status: 405,
+        headers: corsHeaders,
+      },
+    )
+  }
+
   try {
-    const authHeader = req.headers.get('Authorization')
+    const body = await req.json().catch(() => ({}))
 
-    if (!authHeader) {
-      throw new Error('로그인이 필요합니다.')
-    }
+    const paymentKey =
+      typeof body.paymentKey === 'string' ? body.paymentKey.trim() : ''
 
-    const token = authHeader.replace('Bearer ', '')
+    const orderId =
+      typeof body.orderId === 'string' ? body.orderId.trim() : ''
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabaseAdmin.auth.getUser(token)
+    const amount = Number(body.amount)
 
-    if (userError || !user) {
-      throw new Error('사용자 인증 실패')
-    }
-
-    const body = await req.json()
-
-    const paymentKey = body.paymentKey
-    const orderId = body.orderId
-    const amount = body.amount
-
-    if (!paymentKey || !orderId || !amount) {
+    if (!paymentKey || !orderId || Number.isNaN(amount)) {
       throw new Error('필수 값이 누락되었습니다.')
     }
 
-    // 주문 조회
     const { data: order, error: orderError } = await supabaseAdmin
       .from('ebook_orders')
       .select('*')
       .eq('order_id', orderId)
-      .eq('user_id', user.id)
       .single()
 
     if (orderError || !order) {
@@ -65,6 +63,14 @@ Deno.serve(async (req) => {
         {
           ok: true,
           already_paid: true,
+          order: {
+            order_id: order.order_id,
+            status: order.status,
+            amount: order.amount,
+            buyer_name: order.buyer_name,
+            buyer_email: order.buyer_email,
+            buyer_phone: order.buyer_phone,
+          },
         },
         {
           headers: corsHeaders,
@@ -72,18 +78,20 @@ Deno.serve(async (req) => {
       )
     }
 
-    if (Number(order.amount) !== Number(amount)) {
+    if (order.status !== 'ready') {
+      throw new Error('결제 대기 상태의 주문이 아닙니다.')
+    }
+
+    if (Number(order.amount) !== amount) {
       throw new Error('결제 금액이 일치하지 않습니다.')
     }
 
-    // Toss 승인 요청
     const tossResponse = await fetch(
       'https://api.tosspayments.com/v1/payments/confirm',
       {
         method: 'POST',
         headers: {
-          Authorization:
-            'Basic ' + btoa(`${tossSecretKey}:`),
+          Authorization: 'Basic ' + btoa(`${tossSecretKey}:`),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -96,29 +104,45 @@ Deno.serve(async (req) => {
 
     const tossResult = await tossResponse.json()
 
-    // 로그 저장
     await supabaseAdmin.from('payment_logs').insert({
-      user_id: user.id,
+      user_id: null,
       order_id: orderId,
       event_type: 'payment_confirm_attempt',
       status: tossResponse.ok ? 'success' : 'failed',
       amount,
-      raw_payload: tossResult,
+      raw_payload: {
+        toss: tossResult,
+        buyer_name: order.buyer_name,
+        buyer_email: order.buyer_email,
+        buyer_phone: order.buyer_phone,
+      },
     })
 
     if (!tossResponse.ok) {
-      throw new Error(
-        tossResult.message ?? 'Toss 결제 승인 실패',
-      )
+      const failedReason = tossResult.message ?? 'Toss 결제 승인 실패'
+
+      await supabaseAdmin
+        .from('ebook_orders')
+        .update({
+          status: 'failed',
+          failed_reason: failedReason,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', order.id)
+
+      throw new Error(failedReason)
     }
 
-    // paid 처리
+    const approvedAt = new Date().toISOString()
+
     const { error: updateError } = await supabaseAdmin
       .from('ebook_orders')
       .update({
         status: 'paid',
-        approved_at: new Date().toISOString(),
+        approved_at: approvedAt,
         payment_key: paymentKey,
+        failed_reason: null,
+        updated_at: approvedAt,
       })
       .eq('id', order.id)
 
@@ -130,6 +154,15 @@ Deno.serve(async (req) => {
       {
         ok: true,
         payment: tossResult,
+        order: {
+          order_id: order.order_id,
+          amount: order.amount,
+          buyer_name: order.buyer_name,
+          buyer_email: order.buyer_email,
+          buyer_phone: order.buyer_phone,
+          status: 'paid',
+          approved_at: approvedAt,
+        },
       },
       {
         headers: corsHeaders,
@@ -141,10 +174,7 @@ Deno.serve(async (req) => {
     return Response.json(
       {
         ok: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : String(error),
+        message: error instanceof Error ? error.message : String(error),
       },
       {
         status: 400,
