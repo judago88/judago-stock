@@ -91,7 +91,9 @@ export default function DashboardPage() {
               <span className="hidden sm:block text-lg font-bold">
                 주다고 기준봉 센터
               </span>
-              <span className="sm:hidden text-lg font-bold">기준봉 센터</span>
+              <span className="sm:hidden text-lg font-bold">
+                주다고 기준봉 센터
+              </span>
             </Link>
 
             <div className="hidden sm:flex items-center gap-2">

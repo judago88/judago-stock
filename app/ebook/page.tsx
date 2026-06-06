@@ -207,7 +207,7 @@ export default function EbookPage() {
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm">기준봉 센터로 돌아가기</span>
+              <span className="text-sm">주다고 기준봉 센터로 돌아가기</span>
             </Link>
 
             <div className="flex items-center gap-2">
@@ -543,8 +543,8 @@ export default function EbookPage() {
                   개정판도 받을 수 있나요?
                 </h4>
                 <p className="text-base text-muted-foreground">
-                  추후 전자책 내용이 업데이트될 경우, 문의사항을 통해 연락주시면
-                  최초 구매자 확인 후 개정판을 무료로 제공해드립니다.
+                  추후 전자책 내용이 업데이트될 경우, 고객센터를 통해 연락주시면
+                  기존 구매자 확인 후 개정판을 무료로 제공해드립니다.
                 </p>
               </div>
 
@@ -608,7 +608,10 @@ export default function EbookPage() {
 
       <footer className="border-t border-border/50 mt-12 py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          <p>문의사항이 있으시면 Threads DM으로 연락해주세요.</p>
+          <p>
+            기타 사항은 고객센터를 통해 문의주시면 빠른 시일 내에
+            답변드리겠습니다.
+          </p>
         </div>
       </footer>
     </div>

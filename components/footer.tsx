@@ -26,7 +26,7 @@ export function Footer() {
                 href="mailto:junddai91@gmail.com?subject=주다고 문의"
                 className="hover:text-foreground transition-colors"
               >
-                문의하기
+                고객센터
               </a>
 
               <a
