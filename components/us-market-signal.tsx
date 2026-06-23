@@ -47,6 +47,31 @@ export function USMarketSignal() {
   const [items, setItems] = useState<GlobalMarketItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const formatSnapshotTime = (value: string | null | undefined) => {
+    if (!value) return "-";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) return "-";
+
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Seoul",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).formatToParts(date);
+
+    const get = (type: string) =>
+      parts.find((part) => part.type === type)?.value ?? "00";
+
+    return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get(
+      "minute"
+    )}`;
+  };
+
   useEffect(() => {
     const loadSignal = async () => {
       try {
@@ -118,7 +143,7 @@ export function USMarketSignal() {
 
             {snapshot && (
               <p className="text-[11px] text-muted-foreground mt-1">
-                {snapshot.snapshot_date} 기준
+                {formatSnapshotTime(snapshot.snapshot_time)} 기준
                 {/* · 상승 {upCount} / 하락{" "}
                 {downCount} / 보합 {neutralCount} */}
               </p>

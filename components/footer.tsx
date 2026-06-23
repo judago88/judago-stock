@@ -23,7 +23,7 @@ export function Footer() {
               </Link>
 
               <a
-                href="mailto:junddai91@gmail.com?subject=주다고 문의"
+                href="mailto:judago@naver.com?subject=주다고 문의"
                 className="hover:text-foreground transition-colors"
               >
                 고객센터

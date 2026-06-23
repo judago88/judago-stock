@@ -525,7 +525,8 @@ export default function EbookPage() {
                 </h4>
                 <p className="text-base text-muted-foreground">
                   네, 결제 완료 후 즉시 다운로드할 수 있습니다. 단, 해당
-                  전자책은 1회에 한하여 다운로드 가능합니다.
+                  전자책은 1회에 한하여 다운로드 가능하며 파일 저장 후 평생
+                  소장하실 수 있습니다.
                 </p>
               </div>
 
@@ -540,11 +541,11 @@ export default function EbookPage() {
 
               <div>
                 <h4 className="font-medium mb-1 text-lg">
-                  개정판도 받을 수 있나요?
+                  입문서에는 어떤 내용이 담겨 있나요?
                 </h4>
                 <p className="text-base text-muted-foreground">
-                  추후 전자책 내용이 업데이트될 경우, 고객센터를 통해 연락주시면
-                  기존 구매자 확인 후 개정판을 무료로 제공해드립니다.
+                  서점에서 판매하는 일반적인 주식 개념이 아닌, 곧바로 실전
+                  매매에 뛰어들 수 있도록 제작된 실전용 매매기법입니다.
                 </p>
               </div>
 

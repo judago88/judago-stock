@@ -119,7 +119,7 @@ export default function DashboardPage() {
                 className="border-border/50"
                 asChild
               >
-                <a href="mailto:jundd1@gmail.com?subject=주다고 문의">
+                <a href="mailto:judago@naver.com?subject=주다고 문의">
                   <ExternalLink className="w-4 h-4 mr-1.5" />
                   문의하기
                 </a>
@@ -145,8 +145,7 @@ export default function DashboardPage() {
       <div className="border-b border-border/50 bg-secondary/20">
         <div className="container mx-auto px-4 py-2">
           <p className="text-xs text-muted-foreground text-center">
-            본 콘텐츠는 투자 참고용 정보이며, 특정 종목의 매수·매도를 권유하지
-            않습니다.
+            아래의 종목 중 매수충족요건에 부합하는 자리에서 매매를 진행하세요.
           </p>
         </div>
       </div>
@@ -175,7 +174,7 @@ export default function DashboardPage() {
             className="border-border/50"
             asChild
           >
-            <a href="mailto:jundd1@gmail.com?subject=주다고 문의">
+            <a href="mailto:judago@naver.com?subject=주다고 문의">
               <ExternalLink className="w-4 h-4 mr-1.5" />
               문의하기
             </a>
