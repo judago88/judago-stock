@@ -105,7 +105,7 @@ export function USMarketSignal() {
     <Card className="border-border/50 bg-card/50 backdrop-blur py-4">
       <CardHeader className="pb-3 px-4">
         <CardTitle className="text-sm font-medium text-muted-foreground">
-          글로벌 경제 신호
+          글로벌 경제 신호등
         </CardTitle>
       </CardHeader>
 
@@ -113,7 +113,7 @@ export function USMarketSignal() {
         <div className="flex items-center gap-4">
           <div
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center shadow-lg",
+              "w-12 h-12 shrink-0 rounded-full flex items-center justify-center shadow-lg",
               signal === "green" && "bg-green-500 shadow-green-500/30",
               signal === "yellow" && "bg-yellow-500 shadow-yellow-500/30",
               signal === "red" && "bg-red-500 shadow-red-500/30"
@@ -121,7 +121,7 @@ export function USMarketSignal() {
           >
             <div
               className={cn(
-                "w-8 h-8 rounded-full animate-pulse",
+                "w-8 h-8 shrink-0 rounded-full animate-pulse",
                 signal === "green" && "bg-green-400",
                 signal === "yellow" && "bg-yellow-400",
                 signal === "red" && "bg-red-400"
@@ -142,11 +142,17 @@ export function USMarketSignal() {
             </span>
 
             {snapshot && (
-              <p className="text-[11px] text-muted-foreground mt-1">
-                {formatSnapshotTime(snapshot.snapshot_time)} 기준
-                {/* · 상승 {upCount} / 하락{" "}
-                {downCount} / 보합 {neutralCount} */}
-              </p>
+              <>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  {formatSnapshotTime(snapshot.snapshot_time)} 기준
+                </p>
+
+                <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+                  ※ 이 지표는 현재 해외 시장의 투자 심리를 신호등 형태로
+                  직관적으로 표시한 참고 지표입니다. 매일 아침 투자 전 함께
+                  확인하면 단기 매매 판단에 큰 도움이 될 수 있습니다.
+                </p>
+              </>
             )}
           </div>
         </div>

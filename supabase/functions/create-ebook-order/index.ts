@@ -70,6 +70,10 @@ Deno.serve(async (req) => {
       throw new Error('올바른 이메일 형식을 입력해주세요.')
     }
 
+    if (!buyerPhone) {
+      throw new Error('전화번호를 입력해주세요.')
+    }
+
     const { data: ebook, error: ebookError } = await supabaseAdmin
       .from('ebooks')
       .select('id, title, price, file_path, is_active')

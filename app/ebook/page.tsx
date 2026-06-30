@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -116,6 +117,11 @@ export default function EbookPage() {
 
     if (!isValidEmail(trimmedEmail)) {
       alert("올바른 이메일 형식을 입력해주세요.");
+      return;
+    }
+
+    if (!trimmedPhone) {
+      alert("전화번호를 입력해주세요.");
       return;
     }
 
@@ -347,8 +353,7 @@ export default function EbookPage() {
 
                     <div>
                       <label className="block text-sm font-medium mb-1">
-                        전화번호{" "}
-                        <span className="text-muted-foreground">(선택)</span>
+                        전화번호 <span className="text-red-400">*</span>
                       </label>
                       <input
                         type="tel"
@@ -474,9 +479,8 @@ export default function EbookPage() {
                 <p>
                   주식에는 보조지표를 이용한 수많은 차트매매기법이 존재합니다.
                   <br />
-                  그러나, 보조지표는 말 그대로{" "}
-                  <span className="text-foreground font-medium">'보조'</span>
-                  지표일 뿐 매매의 근거가 될 수 없습니다.
+                  그러나, 보조지표는 말 그대로 '보조' 지표일 뿐 매매의 근거가 될
+                  수 없습니다.
                 </p>
 
                 <p>
@@ -509,6 +513,26 @@ export default function EbookPage() {
                     당신의 주식개념을 180도 바꿔드리겠습니다.
                   </p>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/50 bg-card/50 backdrop-blur mb-8">
+            <CardHeader>
+              <CardTitle className="text-xl">
+                📖 기준봉 매매법 입문서 목차
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              <div className="flex justify-center">
+                <Image
+                  src="/ebook-toc.png"
+                  alt="목차"
+                  width={300}
+                  height={400}
+                  className="rounded-lg border shadow-md"
+                />
               </div>
             </CardContent>
           </Card>
@@ -563,7 +587,7 @@ export default function EbookPage() {
 
                 <p className="text-base text-muted-foreground">
                   디지털 콘텐츠 특성상 다운로드가 시작된 이후에는 환불이 제한될
-                  수 있습니다. 자세한 내용은 환불정책을 참고해주세요.
+                  수 있습니다. 자세한 내용은 환불정책을 참고바랍니다.
                 </p>
               </div>
             </CardContent>

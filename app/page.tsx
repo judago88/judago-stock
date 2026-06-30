@@ -145,7 +145,7 @@ export default function DashboardPage() {
       <div className="border-b border-border/50 bg-secondary/20">
         <div className="container mx-auto px-4 py-2">
           <p className="text-xs text-muted-foreground text-center">
-            아래의 종목 중 매수충족요건에 부합하는 자리에서 매매를 진행하세요.
+            아래 종목 중 매수충족요건에 부합하는 자리에서 매매를 진행하세요.
           </p>
         </div>
       </div>
