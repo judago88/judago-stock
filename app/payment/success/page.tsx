@@ -13,6 +13,10 @@ export default function PaymentSuccessPage() {
   const [message, setMessage] = useState("결제를 확인하고 있습니다.");
   const [orderId, setOrderId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [downloadExpiresAt, setDownloadExpiresAt] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     const confirmPayment = async () => {
@@ -68,9 +72,45 @@ export default function PaymentSuccessPage() {
     confirmPayment();
   }, []);
 
+  const downloadFile = async (url: string) => {
+    const fileRes = await fetch(url);
+
+    if (!fileRes.ok) {
+      throw new Error(
+        "다운로드 링크가 만료되었습니다. 재다운로드가 필요한 경우 고객센터로 문의해주세요."
+      );
+    }
+
+    const blob = await fileRes.blob();
+
+    const objectUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = objectUrl;
+    a.download = "기준봉매매법 전자책.pdf";
+    document.body.appendChild(a);
+    a.click();
+
+    a.remove();
+    window.URL.revokeObjectURL(objectUrl);
+  };
+
   const handleDownload = async () => {
     try {
       setIsDownloading(true);
+
+      if (downloadUrl && downloadExpiresAt && Date.now() < downloadExpiresAt) {
+        await downloadFile(downloadUrl);
+        return;
+      }
+
+      if (downloadUrl && downloadExpiresAt && Date.now() >= downloadExpiresAt) {
+        setDownloadUrl(null);
+        setDownloadExpiresAt(null);
+        throw new Error(
+          "다운로드 링크가 만료되었습니다. 재다운로드가 필요한 경우 고객센터로 문의해주세요."
+        );
+      }
 
       const params = new URLSearchParams(window.location.search);
       const orderIdParam = params.get("orderId");
@@ -98,22 +138,12 @@ export default function PaymentSuccessPage() {
         throw new Error(data.message ?? "다운로드 실패");
       }
 
-      const fileRes = await fetch(data.download_url);
-      const blob = await fileRes.blob();
-
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-
-      a.href = url;
-      a.download = "기준봉매매법 전자책.pdf";
-      document.body.appendChild(a);
-      a.click();
-
-      a.remove();
-      window.URL.revokeObjectURL(url);
+      setDownloadUrl(data.download_url);
+      setDownloadExpiresAt(Date.now() + 10 * 60 * 1000);
+      await downloadFile(data.download_url);
 
       setMessage(
-        "다운로드 링크가 발급되었습니다. 해당 전자책은 1회에 한하여 다운로드 가능합니다."
+        "다운로드 링크가 발급되었습니다. 이 화면에 머무는 동안에는 일정 시간 내 재다운로드할 수 있습니다."
       );
     } catch (error) {
       console.error(error);
@@ -158,8 +188,8 @@ export default function PaymentSuccessPage() {
 
             {state === "success" && (
               <p className="text-xs text-muted-foreground mt-3 leading-5">
-                다운로드는 1회만 가능합니다. 다운로드 전 네트워크 상태를
-                확인해주세요.
+                다운로드 링크는 10분 동안 유효합니다. 이 화면을 벗어나거나
+                새로고침하면 재다운로드가 제한될 수 있습니다.
               </p>
             )}
           </div>

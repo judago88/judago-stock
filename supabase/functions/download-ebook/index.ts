@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
 
     if (paidOrder.download_used === true) {
       throw new Error(
-        '이미 다운로드가 완료된 주문입니다. 개정판 또는 재다운로드 문의는 문의하기를 이용해주세요.',
+        '이미 다운로드가 완료된 주문입니다. 다운로드 문제 발생 시 현재의 화면을 캡쳐한 이미지와 구매자의 이름, 이메일, 전화번호, 결제시간 정보를 메인화면 좌측 하단에 있는 고객센터로 보내주시면 결제 내역 확인 후 별도로 전달해드리겠습니다. 이용해주셔서 감사합니다.',
       )
     }
 
@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     const { data: signedData, error: signedError } =
       await supabaseAdmin.storage
         .from('ebooks')
-        .createSignedUrl(ebook.file_path, 60 * 5, {
+        .createSignedUrl(ebook.file_path, 60 * 20, {
           download: `${ebook.title}.pdf`,
         })
 

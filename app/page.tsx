@@ -44,6 +44,7 @@ export default function DashboardPage() {
   const [recentPosts, setRecentPosts] = useState<StockPost[]>([]);
   const [selectedPost, setSelectedPost] = useState<StockPost | null>(null);
   const [postModalOpen, setPostModalOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -117,12 +118,10 @@ export default function DashboardPage() {
                 variant="outline"
                 size="sm"
                 className="border-border/50"
-                asChild
+                onClick={() => setContactOpen(true)}
               >
-                <a href="mailto:judago@naver.com?subject=주다고 문의">
-                  <ExternalLink className="w-4 h-4 mr-1.5" />
-                  문의하기
-                </a>
+                <ExternalLink className="w-4 h-4 mr-1.5" />
+                문의하기
               </Button>
 
               <Button
@@ -172,12 +171,10 @@ export default function DashboardPage() {
             variant="outline"
             size="sm"
             className="border-border/50"
-            asChild
+            onClick={() => setContactOpen(true)}
           >
-            <a href="mailto:judago@naver.com?subject=주다고 문의">
-              <ExternalLink className="w-4 h-4 mr-1.5" />
-              문의하기
-            </a>
+            <ExternalLink className="w-4 h-4 mr-1.5" />
+            문의하기
           </Button>
 
           <Button
@@ -289,6 +286,50 @@ export default function DashboardPage() {
       />
 
       <InvestmentDisclaimer />
+
+      {contactOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="w-full max-w-sm rounded-lg border border-border/50 bg-background p-6 shadow-xl">
+            <h2 className="text-lg font-semibold">고객센터</h2>
+
+            <p className="mt-2 text-sm text-muted-foreground">
+              문의 방법을 선택해주세요.
+            </p>
+
+            <p className="mt-4 rounded-md bg-secondary/30 px-3 py-2 text-center text-sm">
+              judago@naver.com
+            </p>
+
+            <div className="mt-5 space-y-2">
+              <a
+                href="mailto:judago@naver.com?subject=주다고 문의"
+                className="block w-full rounded-md bg-red-500 px-4 py-2 text-center text-sm font-medium text-white hover:bg-red-600"
+              >
+                메일 보내기
+              </a>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  await navigator.clipboard.writeText("judago@naver.com");
+                  alert("이메일 주소가 복사되었습니다.");
+                }}
+                className="w-full rounded-md border border-border/50 px-4 py-2 text-sm hover:bg-secondary/50"
+              >
+                이메일 복사
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setContactOpen(false)}
+                className="w-full rounded-md border border-border/50 px-4 py-2 text-sm"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </div>
   );
