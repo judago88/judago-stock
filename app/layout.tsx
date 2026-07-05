@@ -8,24 +8,24 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "일간 종목 필터 | Daily Stock Filter",
-  description: "조건 충족 종목을 실시간으로 필터링하는 대시보드",
+  title: "주다고 기준봉 센터",
+  description: "일간 기준봉 종목 필터링 대시보드",
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
+        url: "/favicon.png",
         media: "(prefers-color-scheme: light)",
       },
       {
-        url: "/icon-dark-32x32.png",
+        url: "/favicon.png",
         media: "(prefers-color-scheme: dark)",
       },
       {
-        url: "/icon.svg",
+        url: "/favicon.svg",
         type: "image/svg+xml",
       },
     ],
-    apple: "/apple-icon.png",
+    apple: "/favicon.png",
   },
 };
 
