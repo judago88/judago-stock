@@ -19,57 +19,21 @@ export default function PaymentSuccessPage() {
   );
 
   useEffect(() => {
-    const confirmPayment = async () => {
-      try {
-        const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search);
+    const orderIdParam = params.get("orderId");
 
-        const paymentKey = params.get("paymentKey");
-        const orderIdParam = params.get("orderId");
-        const amount = params.get("amount");
+    if (!orderIdParam) {
+      setState("error");
+      setMessage("주문번호가 없습니다.");
+      return;
+    }
 
-        setOrderId(orderIdParam);
+    setOrderId(orderIdParam);
 
-        if (!paymentKey || !orderIdParam || !amount) {
-          throw new Error("결제 승인에 필요한 정보가 없습니다.");
-        }
-
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/confirm-ebook-payment`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              paymentKey,
-              orderId: orderIdParam,
-              amount: Number(amount),
-            }),
-          }
-        );
-
-        const result = await res.json();
-
-        if (!res.ok || !result.ok) {
-          throw new Error(result.message ?? "결제 승인에 실패했습니다.");
-        }
-
-        setState("success");
-        setMessage(
-          "결제가 완료되었습니다. 아래 버튼을 눌러 전자책을 다운로드해주세요."
-        );
-      } catch (error) {
-        console.error(error);
-        setState("error");
-        setMessage(
-          error instanceof Error
-            ? error.message
-            : "결제 승인 중 오류가 발생했습니다."
-        );
-      }
-    };
-
-    confirmPayment();
+    setState("success");
+    setMessage(
+      "결제가 완료되었습니다. 아래 버튼을 눌러 전자책을 다운로드해주세요."
+    );
   }, []);
 
   const downloadFile = async (url: string) => {

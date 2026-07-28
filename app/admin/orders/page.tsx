@@ -28,6 +28,7 @@ interface EbookOrder {
   buyer_name: string | null;
   buyer_email: string | null;
   buyer_phone: string | null;
+  order_memo: string | null;
   download_used: boolean;
   downloaded_at: string | null;
   approved_at: string | null;
@@ -310,6 +311,12 @@ export default function AdminOrdersPage() {
                           {order.buyer_email ?? "-"}
                         </p>
                         <p>연락처: {order.buyer_phone ?? "-"}</p>
+
+                        {order.order_memo && (
+                          <p className="mt-1 line-clamp-1">
+                            요청사항: {order.order_memo}
+                          </p>
+                        )}
                       </div>
                     </div>
 
@@ -442,6 +449,14 @@ export default function AdminOrdersPage() {
                     <p>실패 사유: {selectedOrder.failed_reason ?? "-"}</p>
                     <p>생성일시: {formatDateTime(selectedOrder.created_at)}</p>
                     <p>수정일시: {formatDateTime(selectedOrder.updated_at)}</p>
+                  </div>
+
+                  <div className="rounded-lg border border-border/50 p-4 space-y-2 md:col-span-2">
+                    <h3 className="font-semibold mb-2">주문 메모</h3>
+
+                    <div className="text-sm whitespace-pre-wrap">
+                      {selectedOrder.order_memo ?? "없음"}
+                    </div>
                   </div>
                 </div>
               </div>

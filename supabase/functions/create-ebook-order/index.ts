@@ -54,6 +54,15 @@ Deno.serve(async (req) => {
         ? body.buyer_phone.trim()
         : null
 
+    const orderMemo =
+      typeof body.order_memo === 'string' && body.order_memo.trim()
+        ? body.order_memo.trim()
+        : null
+
+    if (orderMemo && orderMemo.length > 500) {
+      throw new Error('주문 메모는 500자 이하로 입력해주세요.')
+    }
+
     if (!ebookId) {
       throw new Error('ebook_id가 없습니다.')
     }
@@ -96,6 +105,7 @@ Deno.serve(async (req) => {
         buyer_name: buyerName,
         buyer_email: buyerEmail,
         buyer_phone: buyerPhone,
+        order_memo: orderMemo,
         amount: ebook.price,
         status: 'ready',
       })
@@ -126,6 +136,7 @@ Deno.serve(async (req) => {
         buyer_name: buyerName,
         buyer_email: buyerEmail,
         buyer_phone: buyerPhone,
+        order_memo: orderMemo,
       },
     })
 
@@ -142,6 +153,7 @@ Deno.serve(async (req) => {
           buyer_name: buyerName,
           buyer_email: buyerEmail,
           buyer_phone: buyerPhone,
+          order_memo: orderMemo,
         },
       },
       {

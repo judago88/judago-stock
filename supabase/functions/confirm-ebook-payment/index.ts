@@ -7,10 +7,14 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-const tossSecretKey = Deno.env.get('TOSS_SECRET_KEY')
+const nicepayClientKey = Deno.env.get('NICEPAY_CLIENT_KEY')
+const nicepaySecretKey = Deno.env.get('NICEPAY_SECRET_KEY')
+const nicepayApiBaseUrl =
+  Deno.env.get('NICEPAY_API_BASE_URL') ??
+  'https://sandbox-api.nicepay.co.kr'
 
-if (!tossSecretKey) {
-  throw new Error('TOSS_SECRET_KEY is not configured.')
+if (!nicepayClientKey || !nicepaySecretKey) {
+  throw new Error('NICEPAY API keys are not configured.')
 }
 
 Deno.serve(async (req) => {
@@ -36,15 +40,15 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json().catch(() => ({}))
 
-    const paymentKey =
-      typeof body.paymentKey === 'string' ? body.paymentKey.trim() : ''
+    const tid =
+      typeof body.tid === 'string' ? body.tid.trim() : ''
 
     const orderId =
       typeof body.orderId === 'string' ? body.orderId.trim() : ''
 
     const amount = Number(body.amount)
 
-    if (!paymentKey || !orderId || Number.isNaN(amount)) {
+    if (!tid || !orderId || !Number.isFinite(amount)) {
       throw new Error('필수 값이 누락되었습니다.')
     }
 
@@ -86,40 +90,52 @@ Deno.serve(async (req) => {
       throw new Error('결제 금액이 일치하지 않습니다.')
     }
 
-    const tossResponse = await fetch(
-      'https://api.tosspayments.com/v1/payments/confirm',
+    const credentials = btoa(
+      `${nicepayClientKey}:${nicepaySecretKey}`,
+    )
+
+    const nicepayResponse = await fetch(
+      `${nicepayApiBaseUrl}/v1/payments/${encodeURIComponent(tid)}`,
       {
         method: 'POST',
         headers: {
-          Authorization: 'Basic ' + btoa(`${tossSecretKey}:`),
+          Authorization: `Basic ${credentials}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          paymentKey,
-          orderId,
           amount,
         }),
       },
     )
 
-    const tossResult = await tossResponse.json()
+    const nicepayResult = await nicepayResponse.json()
+
+    const isApproved =
+      nicepayResponse.ok &&
+      nicepayResult.resultCode === '0000' &&
+      nicepayResult.status === 'paid' &&
+      nicepayResult.orderId === orderId &&
+      Number(nicepayResult.amount) === amount
 
     await supabaseAdmin.from('payment_logs').insert({
       user_id: null,
       order_id: orderId,
       event_type: 'payment_confirm_attempt',
-      status: tossResponse.ok ? 'success' : 'failed',
+      status: isApproved ? 'success' : 'failed',
       amount,
       raw_payload: {
-        toss: tossResult,
+        provider: 'nicepay',
+        nicepay: nicepayResult,
         buyer_name: order.buyer_name,
         buyer_email: order.buyer_email,
         buyer_phone: order.buyer_phone,
       },
     })
 
-    if (!tossResponse.ok) {
-      const failedReason = tossResult.message ?? 'Toss 결제 승인 실패'
+    if (!isApproved) {
+      const failedReason =
+        nicepayResult.resultMsg ??
+        'NICEPAY 결제 승인에 실패했습니다.'
 
       await supabaseAdmin
         .from('ebook_orders')
@@ -133,14 +149,17 @@ Deno.serve(async (req) => {
       throw new Error(failedReason)
     }
 
-    const approvedAt = new Date().toISOString()
+    const paidAt = new Date(nicepayResult.paidAt)
+    const approvedAt = Number.isNaN(paidAt.getTime())
+      ? new Date().toISOString()
+      : paidAt.toISOString()
 
     const { error: updateError } = await supabaseAdmin
       .from('ebook_orders')
       .update({
         status: 'paid',
         approved_at: approvedAt,
-        payment_key: paymentKey,
+        payment_key: tid,
         failed_reason: null,
         updated_at: approvedAt,
       })
@@ -153,7 +172,7 @@ Deno.serve(async (req) => {
     return Response.json(
       {
         ok: true,
-        payment: tossResult,
+        payment: nicepayResult,
         order: {
           order_id: order.order_id,
           amount: order.amount,
@@ -174,7 +193,8 @@ Deno.serve(async (req) => {
     return Response.json(
       {
         ok: false,
-        message: error instanceof Error ? error.message : String(error),
+        message:
+          error instanceof Error ? error.message : String(error),
       },
       {
         status: 400,
