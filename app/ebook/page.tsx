@@ -562,7 +562,7 @@ export default function EbookPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-border/50 bg-card/50 backdrop-blur mb-8">
+            {/* <Card className="border-border/50 bg-card/50 backdrop-blur mb-8">
               <CardHeader>
                 <CardTitle className="text-xl">
                   📖 기준봉 매매법 입문서 목차
@@ -580,7 +580,7 @@ export default function EbookPage() {
                   />
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
 
             <Card className="border-border/50 bg-card/50 backdrop-blur">
               <CardHeader>
