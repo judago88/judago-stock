@@ -328,7 +328,8 @@ export default function EbookPage() {
                       <div className="flex items-center gap-2 text-base">
                         <Clock className="w-4 h-4 text-muted-foreground" />
                         <span>
-                          결제 완료 후 다운로드 링크가 1회 발급됩니다.
+                          결제 완료 후 다운로드 링크가 즉시 제공되며,
+                          <br /> 1회 발급됩니다.
                         </span>
                       </div>
 
