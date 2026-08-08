@@ -54,13 +54,18 @@ Deno.serve(async (req) => {
         ? body.buyer_phone.trim()
         : null
 
+    const cashReceiptRequested =
+      typeof body.cash_receipt_requested === 'boolean'
+        ? body.cash_receipt_requested
+        : false
+
     const orderMemo =
       typeof body.order_memo === 'string' && body.order_memo.trim()
         ? body.order_memo.trim()
         : null
 
     if (orderMemo && orderMemo.length > 500) {
-      throw new Error('주문 메모는 500자 이하로 입력해주세요.')
+      throw new Error('추가 요청사항은 500자 이하로 입력해주세요.')
     }
 
     if (!ebookId) {
@@ -77,6 +82,10 @@ Deno.serve(async (req) => {
 
     if (!isValidEmail(buyerEmail)) {
       throw new Error('올바른 이메일 형식을 입력해주세요.')
+    }
+
+    if (!buyerPhone) {
+      throw new Error('전화번호를 입력해주세요.')
     }
 
     const { data: ebook, error: ebookError } = await supabaseAdmin
@@ -105,6 +114,7 @@ Deno.serve(async (req) => {
         buyer_name: buyerName,
         buyer_email: buyerEmail,
         buyer_phone: buyerPhone,
+        cash_receipt_requested: cashReceiptRequested,
         order_memo: orderMemo,
         amount: ebook.price,
         status: 'ready',
@@ -115,7 +125,13 @@ Deno.serve(async (req) => {
         order_id,
         ebook_id,
         amount,
-        status
+        status,
+        buyer_name,
+        buyer_email,
+        buyer_phone,
+        cash_receipt_requested,
+        order_memo,
+        created_at
       `,
       )
       .single()
@@ -136,6 +152,7 @@ Deno.serve(async (req) => {
         buyer_name: buyerName,
         buyer_email: buyerEmail,
         buyer_phone: buyerPhone,
+        cash_receipt_requested: cashReceiptRequested,
         order_memo: orderMemo,
       },
     })
@@ -150,10 +167,15 @@ Deno.serve(async (req) => {
           ebook_title: ebook.title,
           amount: order.amount,
           status: order.status,
-          buyer_name: buyerName,
-          buyer_email: buyerEmail,
-          buyer_phone: buyerPhone,
-          order_memo: orderMemo,
+
+          buyer_name: order.buyer_name,
+          buyer_email: order.buyer_email,
+          buyer_phone: order.buyer_phone,
+
+          cash_receipt_requested: order.cash_receipt_requested,
+          order_memo: order.order_memo,
+
+          created_at: order.created_at,
         },
       },
       {
@@ -161,6 +183,8 @@ Deno.serve(async (req) => {
       },
     )
   } catch (error) {
+    console.error('create-ebook-order error:', error)
+
     return Response.json(
       {
         ok: false,
