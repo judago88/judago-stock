@@ -33,7 +33,7 @@ export default function TermsOfServicePage() {
             </li>
 
             <li>
-              “구매자”란 사이트에서 전자책 구매를 신청하고 회사가 안내하는
+              “구매자”란 사이트에서 전자책 구매를 신청하고 사이트가 안내하는
               방법으로 대금을 지급하는 이용자를 말합니다.
             </li>
 
@@ -50,6 +50,11 @@ export default function TermsOfServicePage() {
             <li>
               “조건 충족 종목”이란 사이트가 정한 기준에 따라 분류하거나 기록한
               종목 정보를 말합니다.
+            </li>
+
+            <li>
+              “무통장입금”이란 사이트가 안내하는 은행계좌로 구매자가 직접 대금을
+              이체 또는 입금하는 결제방식을 말합니다.
             </li>
           </ol>
         </section>
@@ -86,12 +91,13 @@ export default function TermsOfServicePage() {
 
           <ol className="list-decimal pl-6 space-y-2">
             <li>주식 관련 교육 콘텐츠 제공</li>
-            <li>조건 충족 종목 정보 제공</li>
+
+            <li>특정 조건에 따라 분류된 주식 종목 관련 정보</li>
+
             <li>PDF 전자책 판매 및 제공</li>
-            <li>전자책 구매 신청 및 주문 접수</li>
-            <li>무통장입금 확인 및 구매 처리</li>
-            <li>전자책 제공 및 구매 관련 안내</li>
-            <li>고객 문의 응대</li>
+
+            <li>공지사항 및 고객문의 서비스</li>
+
             <li>기타 사이트가 정하는 서비스</li>
           </ol>
         </section>
@@ -134,8 +140,8 @@ export default function TermsOfServicePage() {
 
           <ol className="list-decimal pl-6 space-y-2">
             <li>
-              사이트에서 제공하는 모든 주식 관련 정보는 교육 및 참고 목적의
-              정보입니다.
+              사이트에서 제공하는 주식 관련 정보는 투자 참고 및 교육을 목적으로
+              제공됩니다.
             </li>
 
             <li>
@@ -160,8 +166,30 @@ export default function TermsOfServicePage() {
         </section>
 
         <section>
+          <h2 className="text-xl font-semibold mb-4">제7조 사이트 이용</h2>
+
+          <ol className="list-decimal pl-6 space-y-2">
+            <li>사이트는 원칙적으로 회원가입 없이 이용할 수 있습니다.</li>
+
+            <li>
+              전자책 구매 역시 별도의 회원가입 없이 구매정보를 입력하여 신청할
+              수 있습니다.
+            </li>
+
+            <li>
+              이용자는 사이트 이용 시 관계 법령 및 본 약관을 준수하여야 합니다.
+            </li>
+
+            <li>
+              이용자는 사이트의 정상적인 운영을 방해하거나 다른 이용자 또는
+              제3자의 권리를 침해하여서는 안 됩니다.
+            </li>
+          </ol>
+        </section>
+
+        <section>
           <h2 className="text-xl font-semibold mb-4">
-            제7조 전자책 구매 및 결제
+            제8조 전자책 구매 및 결제
           </h2>
 
           <div className="space-y-6">
@@ -213,11 +241,41 @@ export default function TermsOfServicePage() {
                   사이트는 구매자와 확인 후 주문 또는 환불 처리를 진행할 수
                   있습니다.
                 </li>
+
+                <li>
+                  중복입금 또는 초과입금이 확인된 경우 사이트는 구매자 확인 후
+                  차액을 환불할 수 있습니다.
+                </li>
               </ol>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-3">3. 구매계약의 성립</h3>
+              <h3 className="font-semibold mb-3">3. 입금기한 및 주문취소</h3>
+
+              <ol className="list-decimal pl-6 space-y-2">
+                <li>
+                  구매자는 구매 신청 후 사이트 또는 주문안내에서 고지된 기한
+                  내에 대금을 입금하여야 합니다.
+                </li>
+
+                <li>
+                  현재 사이트에서 안내하는 입금기한은 주문 후 24시간입니다.
+                </li>
+
+                <li>
+                  해당 기간까지 입금이 확인되지 않는 경우 주문은 별도의 통지
+                  없이 취소될 수 있습니다.
+                </li>
+
+                <li>
+                  주문이 취소된 이후 구매를 원하는 경우 다시 구매를 신청할 수
+                  있습니다.
+                </li>
+              </ol>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-3">4. 구매계약의 성립</h3>
 
               <ol className="list-decimal pl-6 space-y-2">
                 <li>
@@ -234,6 +292,22 @@ export default function TermsOfServicePage() {
                   사이트는 입금 확인 후 구매자가 입력한 이메일 또는 사이트에서
                   제공하는 방법을 통하여 구매 완료 사실을 안내할 수 있습니다.
                 </li>
+
+                <li>
+                  사이트는 다음 사유가 있는 경우 구매 신청을 취소하거나 추가
+                  확인을 요청할 수 있습니다.
+                  <ul className="list-disc pl-6 mt-2 space-y-1">
+                    <li>주문정보가 사실과 다르거나 확인할 수 없는 경우</li>
+
+                    <li>주문금액과 입금금액이 일치하지 않는 경우</li>
+
+                    <li>비정상적인 주문 또는 부정이용이 의심되는 경우</li>
+
+                    <li>
+                      전자책의 판매 또는 제공이 불가능한 사유가 발생한 경우
+                    </li>
+                  </ul>
+                </li>
               </ol>
             </div>
           </div>
@@ -241,74 +315,68 @@ export default function TermsOfServicePage() {
 
         <section>
           <h2 className="text-xl font-semibold mb-4">
-            제8조 전자책의 제공 및 이용
+            제9조 전자책의 제공 및 이용
           </h2>
 
           <ol className="list-decimal pl-6 space-y-2">
             <li>
-              사이트는 구매자의 입금을 확인한 후 전자책을 다운로드하거나 이용할
-              수 있도록 제공합니다.
+              사이트는 구매자의 입금을 확인한 후 구매 시 입력한 이메일 주소를
+              통하여 PDF 전자책을 제공합니다.
             </li>
 
             <li>
-              전자책은 구매 시 입력한 이메일을 통한 다운로드 링크, 사이트 내
-              다운로드 기능 또는 사이트가 별도로 안내하는 방법으로 제공할 수
-              있습니다.
+              전자책은 입금 확인 후 1영업일 이내 발송하는 것을 원칙으로 합니다.
+            </li>
+
+            <li>주말 및 공휴일은 영업일에 포함하지 않습니다.</li>
+
+            <li>
+              구매자가 이메일 주소를 잘못 입력하여 전자책을 받지 못한 경우
+              사이트는 구매자 및 주문내역을 확인한 후 다시 발송할 수 있습니다.
             </li>
 
             <li>
-              구매자가 이메일 주소 등 주문 정보를 잘못 입력하여 전자책을
-              정상적으로 제공받지 못한 경우 사이트는 본인 및 주문 확인 후 다시
-              제공할 수 있습니다.
+              이메일 수신 오류, 스팸메일 분류 등으로 전자책을 확인하지 못한 경우
+              구매자는 사이트에 재발송을 요청할 수 있습니다.
             </li>
 
             <li>
-              시스템 장애 등으로 전자책 제공이 정상적으로 이루어지지 않은 경우
-              사이트는 확인 후 다시 다운로드하거나 이용할 수 있도록 조치할 수
-              있습니다.
-            </li>
-
-            <li>
-              구매자는 전자책을 본인의 개인 학습 목적으로만 이용할 수 있습니다.
-            </li>
-
-            <li>
-              구매자는 전자책 파일을 제3자에게 공유, 배포, 판매, 재판매, 무단
-              전송 또는 무단 업로드할 수 없습니다.
+              사이트의 사정으로 전자책을 정상적으로 제공할 수 없는 경우
+              구매자에게 해당 사실을 안내하고 관계 법령에 따라 필요한 조치를
+              취합니다.
             </li>
           </ol>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">제9조 이용자의 의무</h2>
-
-          <p className="mb-4">이용자는 다음 행위를 해서는 안 됩니다.</p>
+          <h2 className="text-xl font-semibold mb-4">제10조 현금영수증</h2>
 
           <ol className="list-decimal pl-6 space-y-2">
-            <li>타인의 개인정보를 도용하는 행위</li>
-
-            <li>허위 정보를 입력하여 구매 또는 문의하는 행위</li>
-
-            <li>전자책 PDF 파일을 무단 복제, 공유, 배포, 판매하는 행위</li>
-
             <li>
-              사이트 콘텐츠를 무단으로 복사, 캡처, 저장, 배포, 2차 가공하는 행위
+              사이트는 무통장입금으로 이루어진 거래에 대하여 관련 세법에 따라
+              현금영수증을 처리합니다.
             </li>
 
-            <li>사이트 운영을 방해하는 행위</li>
-
             <li>
-              사이트 콘텐츠를 이용하여 유료 리딩, 종목 추천, 불법 영업을 하는
-              행위
+              구매자는 구매 신청 과정에서 현금영수증 신청 여부를 선택할 수
+              있습니다.
             </li>
 
-            <li>관련 법령 또는 본 약관을 위반하는 행위</li>
+            <li>
+              구매자가 현금영수증 발급을 신청한 경우 사이트는 구매자가 제공한
+              정보를 이용하여 발급 절차를 진행합니다.
+            </li>
+
+            <li>
+              구매자가 별도로 현금영수증 발급을 요청하지 않은 경우에도 관련
+              법령에 따라 자진발급 등 필요한 세무처리를 할 수 있습니다.
+            </li>
           </ol>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold mb-4">
-            제10조 주문의 취소 및 환불
+            제11조 주문의 취소 및 환불
           </h2>
 
           <ol className="list-decimal pl-6 space-y-2">
@@ -323,7 +391,8 @@ export default function TermsOfServicePage() {
             </li>
 
             <li>
-              디지털콘텐츠의 특성상 전자책 제공이 시작된 이후에는 관련 법령에
+              디지털콘텐츠의 특성상 전자책의 제공 또는 이용이 개시된 이후에는
+              「전자상거래 등에서의 소비자보호에 관한 법률」에서 정한 요건에
               따라 청약철회가 제한될 수 있습니다.
             </li>
 
@@ -332,16 +401,28 @@ export default function TermsOfServicePage() {
               다르게 제공된 경우에는 관련 법령에 따른 구매자의 권리가
               보장됩니다.
             </li>
-          </ol>
 
-          <p className="mt-4">
-            전자책 환불에 관한 보다 구체적인 기준과 절차는 별도의 환불정책에
-            따릅니다.
-          </p>
+            <li>
+              환불이 승인된 경우 무통장입금 거래의 환불은 원칙적으로 구매자가
+              제공한 환불계좌로 계좌이체하는 방법으로 진행합니다.
+            </li>
+
+            <li>
+              사이트는 환불을 위하여 은행명, 계좌번호 및 예금주명 등을 요청할 수
+              있습니다.
+            </li>
+
+            <li>
+              구매자명, 입금자명 및 환불계좌 예금주가 서로 다른 경우 거래 확인을
+              위한 추가 확인을 요청할 수 있습니다.
+            </li>
+
+            <li>구체적인 환불기준은 사이트의 환불정책에 따릅니다.</li>
+          </ol>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">제11조 콘텐츠의 저작권</h2>
+          <h2 className="text-xl font-semibold mb-4">제12조 콘텐츠의 저작권</h2>
 
           <ol className="list-decimal pl-6 space-y-2">
             <li>
@@ -368,7 +449,7 @@ export default function TermsOfServicePage() {
 
         <section>
           <h2 className="text-xl font-semibold mb-4">
-            제12조 서비스의 변경 및 중단
+            제13조 서비스의 변경 및 중단
           </h2>
 
           <ol className="list-decimal pl-6 space-y-2">
@@ -396,7 +477,27 @@ export default function TermsOfServicePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">제13조 책임의 제한</h2>
+          <h2 className="text-xl font-semibold mb-4">제14조 이용자의 의무</h2>
+
+          <p className="mb-4">이용자는 다음 행위를 하여서는 안 됩니다.</p>
+
+          <ol className="list-decimal pl-6 space-y-2">
+            <li>허위정보를 이용한 주문 또는 문의</li>
+
+            <li>타인의 개인정보를 무단으로 이용하는 행위</li>
+
+            <li>사이트의 정상적인 운영을 방해하는 행위</li>
+
+            <li>사이트의 콘텐츠를 무단으로 복제·배포·판매하는 행위</li>
+
+            <li>관계 법령 또는 공공질서에 위반되는 행위</li>
+
+            <li>회사 또는 제3자의 권리를 침해하는 행위</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-4">제15조 책임의 제한</h2>
 
           <ol className="list-decimal pl-6 space-y-2">
             <li>사이트는 이용자의 투자 결과에 대해 책임지지 않습니다.</li>
@@ -425,7 +526,7 @@ export default function TermsOfServicePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">제14조 개인정보 보호</h2>
+          <h2 className="text-xl font-semibold mb-4">제16조 개인정보 보호</h2>
 
           <p>
             사이트는 이용자의 개인정보를 관련 법령에 따라 보호하며, 개인정보
@@ -434,7 +535,7 @@ export default function TermsOfServicePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">제15조 분쟁 해결</h2>
+          <h2 className="text-xl font-semibold mb-4">제17조 분쟁 해결</h2>
 
           <ol className="list-decimal pl-6 space-y-2">
             <li>
@@ -450,7 +551,7 @@ export default function TermsOfServicePage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-4">제16조 사업자 정보</h2>
+          <h2 className="text-xl font-semibold mb-4">제18조 사업자 정보</h2>
 
           <div className="rounded-lg border border-border p-5 bg-muted/20 space-y-2">
             <p>
@@ -479,7 +580,7 @@ export default function TermsOfServicePage() {
             </p>
 
             <p>
-              <strong>연락처</strong> : 010-5007-1723
+              <strong>연락처</strong> : 010-8238-4511
             </p>
           </div>
         </section>

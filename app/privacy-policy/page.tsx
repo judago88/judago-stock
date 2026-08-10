@@ -10,7 +10,6 @@ export default function PrivacyPolicyPage() {
           공개합니다.
         </p>
 
-        {/* 제1조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">
             제1조 개인정보의 처리 목적
@@ -104,7 +103,6 @@ export default function PrivacyPolicyPage() {
           </div>
         </section>
 
-        {/* 제2조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">
             제2조 처리하는 개인정보 항목
@@ -210,7 +208,6 @@ export default function PrivacyPolicyPage() {
           </div>
         </section>
 
-        {/* 제3조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">제3조 결제정보의 처리</h2>
 
@@ -230,7 +227,6 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
-        {/* 제4조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">
             제4조 환불계좌 정보의 처리
@@ -248,7 +244,6 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
-        {/* 제5조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">
             제5조 개인정보의 처리 및 보유 기간
@@ -260,32 +255,24 @@ export default function PrivacyPolicyPage() {
             보존하여야 하는 경우에는 해당 기간 동안 안전하게 보관할 수 있습니다.
           </p>
 
+          <p className="mb-4">
+            「전자상거래 등에서의 소비자보호에 관한 법률」 및 같은 법 시행령에
+            따른 주요 보존기간은 다음과 같습니다.
+          </p>
+
           <ul className="list-disc pl-6 space-y-2">
-            <li>
-              주문, 계약 및 구매 관련 기록: 관련 전자상거래 법령에서 정하는 기간
-              동안 보관
-            </li>
-
-            <li>
-              대금 결제, 입금 확인, 환불 및 취소 관련 기록: 관련 법령 및 분쟁
-              대응을 위하여 필요한 기간 동안 보관
-            </li>
-
-            <li>
-              현금영수증 및 세무 관련 기록: 세법 등 관련 법령에 따른 기간 동안
-              보관
-            </li>
-
-            <li>
-              고객 문의 내역: 문의 및 분쟁 대응을 위하여 필요한 기간 동안 보관할
-              수 있음
-            </li>
-
-            <li>접속 기록: 관련 법령에 따라 필요한 기간 동안 보관할 수 있음</li>
+            <li>표시·광고에 관한 기록: 6개월</li>
+            <li>계약 또는 청약철회 등에 관한 기록: 5년</li>
+            <li>대금결제 및 재화 등의 공급에 관한 기록: 5년</li>
+            <li>소비자의 불만 또는 분쟁처리에 관한 기록: 3년</li>
           </ul>
+
+          <p className="mt-4">
+            현금영수증, 세금 및 회계 관련 기록은 관련 세법 등 관계 법령에서 정한
+            기간 동안 보관할 수 있습니다.
+          </p>
         </section>
 
-        {/* 제6조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">
             제6조 개인정보의 제3자 제공
@@ -309,10 +296,14 @@ export default function PrivacyPolicyPage() {
               수사기관, 법원, 감독기관 등 법령상 권한 있는 기관의 적법한 요청이
               있는 경우
             </li>
+
+            <li>
+              현금영수증 발급 및 세무 관련 법적 의무를 이행하기 위하여 국세청 등
+              관계기관에 필요한 정보를 제출하는 경우
+            </li>
           </ul>
         </section>
 
-        {/* 제7조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">
             제7조 개인정보 처리업무의 위탁
@@ -345,7 +336,6 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
-        {/* 제8조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">
             제8조 개인정보의 파기 절차 및 방법
@@ -366,7 +356,6 @@ export default function PrivacyPolicyPage() {
           </ul>
         </section>
 
-        {/* 제9조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">제9조 이용자의 권리</h2>
 
@@ -389,7 +378,6 @@ export default function PrivacyPolicyPage() {
           <p className="mt-2 font-medium">이메일: judago@naver.com</p>
         </section>
 
-        {/* 제10조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">제10조 쿠키의 사용</h2>
 
@@ -405,7 +393,6 @@ export default function PrivacyPolicyPage() {
           </p>
         </section>
 
-        {/* 제11조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">
             제11조 개인정보 보호책임자
@@ -414,11 +401,10 @@ export default function PrivacyPolicyPage() {
           <ul className="space-y-2">
             <li>개인정보 보호책임자: 윤보석</li>
             <li>이메일: judago@naver.com</li>
-            <li>연락처: 010-5007-1723</li>
+            <li>연락처: 010-8238-4511</li>
           </ul>
         </section>
 
-        {/* 제12조 */}
         <section>
           <h2 className="text-xl font-semibold mb-4">
             제12조 개인정보처리방침의 변경
