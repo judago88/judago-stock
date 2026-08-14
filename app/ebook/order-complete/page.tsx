@@ -208,9 +208,9 @@ export default function EbookOrderCompletePage() {
             </h1>
 
             <p className="text-muted-foreground leading-7">
-              아래 계좌로 주문 후 24시간 이내에 입금해주세요.
+              주문이 접수된 후 24시간 이내에 아래의 계좌로 입금해주세요.
               <br />
-              입금 확인 후 전자책을 이메일로 발송해드립니다.
+              입금 확인 후 입력하신 이메일로 전자책을 발송해드립니다.
             </p>
           </div>
 
@@ -218,7 +218,7 @@ export default function EbookOrderCompletePage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Landmark className="w-5 h-5 text-red-400" />
-                입금 계좌
+                입금하실 계좌
               </CardTitle>
             </CardHeader>
 
@@ -365,16 +365,23 @@ export default function EbookOrderCompletePage() {
                 </p>
               </div>
 
-              {order.cash_receipt_requested && (
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
 
-                  <p className="text-sm leading-6">
-                    현금영수증 신청 주문은 입력하신 전화번호를 기준으로
-                    소득공제용 현금영수증이 발급됩니다.
-                  </p>
-                </div>
-              )}
+                <p className="text-sm leading-6">
+                  현금영수증 신청 주문은 입력하신 전화번호를 기준으로 소득공제용
+                  현금영수증이 발급됩니다.
+                </p>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
+
+                <p className="text-sm leading-6">
+                  비회원제로 운영되는 사이트 특성상 현재 페이지를 이탈하면 주문
+                  정보 재확인이 불가하오니 이 점 참고바랍니다.
+                </p>
+              </div>
             </CardContent>
           </Card>
 

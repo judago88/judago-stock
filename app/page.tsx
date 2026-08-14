@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Megaphone } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   Empty,
   EmptyHeader,
@@ -45,6 +47,7 @@ export default function DashboardPage() {
   const [selectedPost, setSelectedPost] = useState<StockPost | null>(null);
   const [postModalOpen, setPostModalOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const loadData = async () => {
@@ -53,7 +56,7 @@ export default function DashboardPage() {
 
         const [latestPostData, recentPostData, noticeData] = await Promise.all([
           getLatestStockPost(),
-          getRecentStockPosts(30),
+          getRecentStockPosts(),
           getPinnedNotices(),
         ]);
 
@@ -102,6 +105,16 @@ export default function DashboardPage() {
                 variant="outline"
                 size="sm"
                 className="border-border/50"
+                onClick={() => router.push("/notices")}
+              >
+                <Megaphone className="w-4 h-4 mr-1.5" />
+                공지사항
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-border/50"
                 asChild
               >
                 <a
@@ -143,8 +156,17 @@ export default function DashboardPage() {
 
       <div className="border-b border-border/50 bg-secondary/20">
         <div className="container mx-auto px-4 py-2">
-          <p className="text-xs text-muted-foreground text-center">
+          {/* Mobile */}
+          <p className="text-xs text-muted-foreground text-center md:hidden">
+            기준봉센터는 당일 기준봉이 출현한 종목을 제공합니다.
+            <br />
             아래 종목 중 매수충족요건에 부합하는 자리에서 매매를 진행하세요.
+          </p>
+
+          {/* Desktop */}
+          <p className="hidden md:block text-base text-muted-foreground text-center">
+            기준봉센터는 당일 기준봉이 출현한 종목을 제공합니다. 아래 종목 중
+            매수충족요건에 부합하는 자리에서 매매를 진행하세요.
           </p>
         </div>
       </div>
@@ -223,10 +245,10 @@ export default function DashboardPage() {
                     {latestPost.content}
                   </div>
 
-                  <div className="mt-6 rounded-lg border border-border/50 p-4 text-xs leading-6 text-muted-foreground">
-                    본 콘텐츠는 투자 참고용 정보이며, 특정 종목의 매수·매도를
+                  <div className="mt-6 rounded-lg border border-border/50 p-4 text-base leading-6 text-muted-foreground">
+                    해당 리포트는 투자 참고용 정보이며, 특정 종목의 매수·매도를
                     권유하지 않습니다. 투자의 최종 판단과 책임은 이용자 본인에게
-                    있습니다.
+                    있습니다
                   </div>
                 </CardContent>
               </Card>
@@ -238,7 +260,9 @@ export default function DashboardPage() {
                   <CardContent className="p-5">
                     <div className="flex items-center gap-2 mb-4">
                       <FileText className="w-4 h-4 text-red-400" />
-                      <h2 className="font-semibold">최근 30일 기준봉 리포트</h2>
+                      <h2 className="font-semibold text-lg">
+                        최근 30일 기준봉 리포트
+                      </h2>
                     </div>
 
                     <div className="space-y-2 max-h-[520px] overflow-y-auto pr-1">

@@ -489,7 +489,7 @@ export default function EbookPage() {
                         htmlFor="orderMemo"
                         className="text-sm font-medium"
                       >
-                        추가 요청사항 (선택)
+                        요청사항 (선택)
                       </label>
 
                       <textarea
@@ -498,7 +498,7 @@ export default function EbookPage() {
                         onChange={(e) => setOrderMemo(e.target.value)}
                         maxLength={500}
                         rows={3}
-                        placeholder="궁금한 점이나 요청사항이 있다면 자유롭게 남겨주세요."
+                        placeholder="구매자의 Threads 닉네임 / 추가로 궁금한 점이나 요청사항이 있다면 자유롭게 남겨주세요"
                         className="w-full resize-none rounded-md border border-border bg-background px-3 py-2.5 text-sm"
                       />
 
@@ -645,7 +645,7 @@ export default function EbookPage() {
             <CardContent>
               <div className="space-y-5 text-base leading-8 text-muted-foreground">
                 <p>
-                  안녕하세요, 기준봉 센터장 주다고입니다.
+                  안녕하세요, 기준봉 센터장 주식다마고치입니다.
                   <br />
                   그동안 투자를 하면서 수많은 실패와 시련을 겪으면서도 주식을
                   놓지 못한 이유는 제대로 된 매매기법만 가지고 있다면 퇴직
@@ -664,7 +664,7 @@ export default function EbookPage() {
                   제가 실제로 10여 년간 여러가지 기법을 적용하여 매매를
                   진행해오면서 기준봉매매는 높은 정확도가 입증된 매매법이며
                   글솜씨가 없음에도 불구하고 충분히 공유가치가 있다고 판단되어
-                  전자책을 제작하게 되었습니다.
+                  기준봉 매매법 입문서를 전자책으로 제작하게 되었습니다.
                 </p>
 
                 <p>
@@ -684,12 +684,7 @@ export default function EbookPage() {
                   아직도 제대로 된 투자 방향을 잡지 못한 투자자분들에게 해당
                   기준봉매매법이 유용하게 쓰였으면 좋겠습니다.
                 </p>
-
-                <div className="pt-2">
-                  <p className="text-lg font-semibold text-foreground">
-                    당신의 주식개념을 180도 바꿔드리겠습니다.
-                  </p>
-                </div>
+                <p> 당신의 주식개념을 180도 바꿔드리겠습니다.</p>
               </div>
             </CardContent>
           </Card>
@@ -759,9 +754,9 @@ export default function EbookPage() {
 
                 <p className="text-base text-muted-foreground">
                   전자책이 발송되기 전에는 입금내역 확인 후 주문 취소 및 환불을
-                  요청할 수 있습니다. 전자책 제공이 시작된 이후에는 디지털
-                  콘텐츠의 특성 및 관련 법령에 따라 청약철회가 제한될 수
-                  있습니다. 자세한 내용은 환불정책을 확인해주세요.
+                  요청할 수 있습니다. 다만, 디지털 콘텐츠의 특성상 전자책이 이미
+                  제공된 이후에는 관련 법령에 따라 청약철회가 제한될 수
+                  있습니다. 자세한 내용은 환불정책을 확인해주시기 바랍니다.
                 </p>
               </div>
             </CardContent>

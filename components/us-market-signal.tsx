@@ -104,7 +104,7 @@ export function USMarketSignal() {
   return (
     <Card className="border-border/50 bg-card/50 backdrop-blur py-4">
       <CardHeader className="pb-3 px-4">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-lg font-medium text-muted-foreground">
           글로벌 경제 신호등
         </CardTitle>
       </CardHeader>
@@ -132,7 +132,7 @@ export function USMarketSignal() {
           <div>
             <span
               className={cn(
-                "text-sm font-semibold",
+                "text-base font-semibold",
                 signal === "green" && "text-green-400",
                 signal === "yellow" && "text-yellow-400",
                 signal === "red" && "text-red-400"
@@ -143,14 +143,15 @@ export function USMarketSignal() {
 
             {snapshot && (
               <>
-                <p className="text-[11px] text-muted-foreground mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {formatSnapshotTime(snapshot.snapshot_time)} 기준
                 </p>
 
-                <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
-                  ※ 이 지표는 현재 해외 시장의 투자 심리를 신호등 형태로
-                  직관적으로 표시한 참고 지표입니다. 매일 아침 투자 전 함께
-                  확인하면 단기 매매 판단에 큰 도움이 될 수 있습니다.
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  ※ 글로벌 경제 신호등은 현재 해외 시장의 투자 심리를 신호등
+                  형태로 표시한 참고 지표입니다.
+                  <br />
+                  해외 경제 분위기를 직관적으로 확인할 수 있습니다.
                 </p>
               </>
             )}

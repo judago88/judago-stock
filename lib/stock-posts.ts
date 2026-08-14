@@ -35,18 +35,40 @@ export async function getLatestStockPost(): Promise<StockPost | null> {
   return data as StockPost | null;
 }
 
-export async function getRecentStockPosts(
-  limit = 30
-): Promise<StockPost[]> {
+// export async function getRecentStockPosts(
+//   limit = 30
+// ): Promise<StockPost[]> {
+//   const supabase = createClient();
+
+//   const { data, error } = await supabase
+//     .from("stock_posts")
+//     .select("*")
+//     .eq("is_published", true)
+//     .order("post_date", { ascending: false })
+//     .order("created_at", { ascending: false })
+//     .limit(limit);
+
+//   if (error) {
+//     console.error("getRecentStockPosts error:", error);
+//     throw error;
+//   }
+
+//   return (data ?? []) as StockPost[];
+// }
+
+export async function getRecentStockPosts(): Promise<StockPost[]> {
   const supabase = createClient();
+  const HISTORY_DAYS = 30;
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - HISTORY_DAYS);
 
   const { data, error } = await supabase
     .from("stock_posts")
     .select("*")
     .eq("is_published", true)
+    .gte("post_date", thirtyDaysAgo.toISOString().split("T")[0])
     .order("post_date", { ascending: false })
-    .order("created_at", { ascending: false })
-    .limit(limit);
+    .order("created_at", { ascending: false });
 
   if (error) {
     console.error("getRecentStockPosts error:", error);

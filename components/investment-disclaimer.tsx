@@ -3,7 +3,7 @@ export function InvestmentDisclaimer() {
     <section className="py-6 text-center">
       <div className="text-sm leading-6 text-muted-foreground/70">
         <p>
-          본 서비스는 특정 조건에 따라 종목을 분류한 참고 정보이며, 특정 종목의
+          본 서비스는 특정 조건에 따라 분류한 종목만을 제공하며, 별도의
           매수·매도 추천이나 투자자문을 제공하지 않습니다.
         </p>
 
