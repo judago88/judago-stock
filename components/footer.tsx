@@ -84,7 +84,7 @@ export function Footer() {
                 다운타운일레븐)
               </p>
               <p>이메일 : judago@naver.com</p>
-              <p>연락처 : 010-5007-1723</p>
+              <p>연락처 : 010-8238-4511</p>
               <p className="pt-3">
                 © 2026 주다고 기준봉 센터. All rights reserved.
               </p>
