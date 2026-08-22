@@ -47,6 +47,18 @@ const purchaseHighlights = [
   "입금 확인 후 이메일 발송",
 ];
 
+const detailImages = [
+  "/ebook/1.jpg",
+  "/ebook/2.jpg",
+  "/ebook/3.jpg",
+  "/ebook/4.jpg",
+  "/ebook/5.jpg",
+  "/ebook/6.jpg",
+  "/ebook/7.jpg",
+  "/ebook/8.jpg",
+  "/ebook/9.jpg",
+];
+
 function formatPrice(value: number) {
   return `${value.toLocaleString()}원`;
 }
@@ -66,6 +78,10 @@ export default function EbookPage() {
   const [ebook, setEbook] = useState<Ebook | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [showAllDetailImages, setShowAllDetailImages] = useState(false);
+  const [selectedDetailImage, setSelectedDetailImage] = useState<string | null>(
+    null
+  );
 
   const [buyerName, setBuyerName] = useState("");
   const [buyerEmail, setBuyerEmail] = useState("");
@@ -633,6 +649,71 @@ export default function EbookPage() {
             </CardContent>
           </Card>
 
+          {/* DETAIL IMAGES */}
+          <Card className="mb-8 border-border/50 bg-card/50 backdrop-blur">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <BookOpen className="h-5 w-5 text-red-400" />
+                전자책 상세 미리보기
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
+                {(showAllDetailImages
+                  ? detailImages
+                  : detailImages.slice(0, 3)
+                ).map((image, index) => (
+                  <button
+                    key={image}
+                    type="button"
+                    onClick={() => setSelectedDetailImage(image)}
+                    className="group overflow-hidden rounded-xl border border-border/50 bg-muted/20 text-left transition-colors hover:border-border"
+                    aria-label={`전자책 상세 이미지 ${index + 1} 크게 보기`}
+                  >
+                    <div className="aspect-[3/4] overflow-hidden bg-muted/20 p-2 md:p-3">
+                      <img
+                        src={image}
+                        alt={`전자책 상세 이미지 ${index + 1}`}
+                        className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                      />
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {!showAllDetailImages && detailImages.length > 3 && (
+                <div className="mt-5 flex justify-center">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowAllDetailImages(true)}
+                    className="border-border/50"
+                  >
+                    상세 이미지 더보기 ({detailImages.length - 3}장)
+                  </Button>
+                </div>
+              )}
+
+              {showAllDetailImages && (
+                <div className="mt-5 flex justify-center">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowAllDetailImages(false)}
+                    className="border-border/50"
+                  >
+                    접기
+                  </Button>
+                </div>
+              )}
+
+              <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">
+                이미지를 클릭하면 크게 확인할 수 있습니다.
+              </p>
+            </CardContent>
+          </Card>
+
           {/* AUTHOR */}
           <Card className="mb-8 border-border/50 bg-card/50 backdrop-blur">
             <CardHeader>
@@ -801,6 +882,32 @@ export default function EbookPage() {
           </div>
         </div>
       </main>
+
+      {selectedDetailImage && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 md:p-8"
+          onClick={() => setSelectedDetailImage(null)}
+        >
+          <button
+            type="button"
+            onClick={() => setSelectedDetailImage(null)}
+            className="absolute right-4 top-4 rounded-full bg-background/90 px-4 py-2 text-sm font-medium text-foreground shadow-lg"
+          >
+            닫기
+          </button>
+
+          <div
+            className="max-h-[92vh] max-w-4xl overflow-auto rounded-xl bg-background p-2 shadow-2xl md:p-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={selectedDetailImage}
+              alt="전자책 상세 이미지 확대"
+              className="h-auto w-full object-contain"
+            />
+          </div>
+        </div>
+      )}
 
       <footer className="mt-12 border-t border-border/50 py-6">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
