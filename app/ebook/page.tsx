@@ -654,7 +654,7 @@ export default function EbookPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl">
                 <BookOpen className="h-5 w-5 text-red-400" />
-                전자책 상세 미리보기
+                전자책 미리보기
               </CardTitle>
             </CardHeader>
 
