@@ -57,6 +57,7 @@ const detailImages = [
   "/ebook/7.jpg",
   "/ebook/8.jpg",
   "/ebook/9.jpg",
+  "/ebook/10.jpg",
 ];
 
 function formatPrice(value: number) {
