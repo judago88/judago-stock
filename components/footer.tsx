@@ -34,14 +34,14 @@ export function Footer() {
                   고객센터
                 </button>
 
-                <a
+                {/* <a
                   href="https://www.threads.com/@jodago_"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-foreground transition-colors"
                 >
                   Threads
-                </a>
+                </a> */}
 
                 <Link
                   href="/ebook"

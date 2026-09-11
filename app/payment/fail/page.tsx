@@ -67,7 +67,8 @@ export default function PaymentFailPage() {
           <p className="text-xs text-muted-foreground leading-5">
             문제가 계속 발생하는 경우
             <br />
-            상단 문의하기 또는 Threads DM으로 문의해주세요.
+            {/* 상단 문의하기 또는 Threads DM으로 문의해주세요. */}
+            상단 문의하기로 문의해주세요.
           </p>
         </CardContent>
       </Card>
