@@ -35,7 +35,7 @@ interface BankTransferOrder {
 
 const BANK_NAME = "케이뱅크";
 const BANK_ACCOUNT = "100-114-514416";
-const BANK_HOLDER = "윤보석";
+const BANK_HOLDER = "윤보석(주다고)";
 
 function formatPrice(value: number) {
   return `${value.toLocaleString()}원`;

@@ -515,7 +515,7 @@ export default function EbookPage() {
                         onChange={(e) => setOrderMemo(e.target.value)}
                         maxLength={500}
                         rows={3}
-                        placeholder="구매자의 Threads 닉네임 / 추가로 궁금한 점이나 요청사항이 있다면 자유롭게 남겨주세요"
+                        placeholder="추가로 궁금한 점이나 요청사항이 있다면 자유롭게 남겨주세요"
                         className="w-full resize-none rounded-md border border-border bg-background px-3 py-2.5 text-sm"
                       />
 
@@ -726,37 +726,82 @@ export default function EbookPage() {
 
             <CardContent>
               <div className="space-y-5 text-base leading-8 text-muted-foreground">
+                <p>여러분, 주식을 게임처럼 할 수 있다면 믿으시겠습니까?</p>
+
                 <p>
-                  안녕하세요, 기준봉 센터장 주식다마고치입니다.
+                  기준봉센터 이용자는 주식 투자가 더 이상 스트레스가 아닌
                   <br />
-                  그동안 투자를 하면서 수많은 실패와 시련을 겪으면서도 주식을
-                  놓지 못한 이유는 제대로 된 매매기법만 가지고 있다면 퇴직
-                  후에도 안정적으로 수익을 취할 수 있다는 기대감이 있었기
-                  때문입니다.
+                  &apos;주식 게임&apos; 혹은 &apos;돈 버는 게임&apos; 으로 바뀔
+                  것입니다.
                 </p>
 
-                <p>
-                  주식에는 보조지표를 이용한 수많은 차트매매기법이 존재합니다.
-                  <br />
-                  그러나, 보조지표는 말 그대로 &apos;보조&apos; 지표일 뿐 매매의
-                  근거가 될 수 없습니다.
-                </p>
+                <div className="pt-4">
+                  <p className="mb-5 text-lg font-semibold text-foreground">
+                    [기준봉센터 이용자의 특혜]
+                  </p>
 
-                <p>
-                  제가 실제로 10여 년간 여러가지 기법을 적용하여 매매를
-                  진행해오면서 기준봉매매는 높은 정확도가 입증된 매매법이며
-                  글솜씨가 없음에도 불구하고 충분히 공유가치가 있다고 판단되어
-                  기준봉 매매법 입문서를 전자책으로 제작하게 되었습니다.
-                </p>
+                  <div className="space-y-8">
+                    <div>
+                      <p className="mb-2 font-semibold text-foreground">
+                        1. 종목을 찾기 위해 노력하지 않아도 된다
+                      </p>
+                      <p>
+                        기준봉센터는 당일 기준봉이 출현한 종목을 무료로 제공하고
+                        있습니다.
+                        <br />
+                        해당 종목들을 관심종목에 넣어두기만 하면 주식 게임 준비
+                        완료입니다.
+                      </p>
+                    </div>
 
-                <p>
-                  정말 좋은 매매법은 초보자도 쉽게 따라 할 수 있어야 합니다.
-                  <br />
-                  결국, 내가 수익을 냈을 때 그것이 정답입니다.
-                </p>
+                    <div>
+                      <p className="mb-2 font-semibold text-foreground">
+                        2. 기준봉 매매법 입문서 하나로 주식 공부 끝
+                      </p>
+                      <p>
+                        주식투자는 무수히 많은 매매 방법이 있고 우리는 그 모든
+                        것을 알 필요가 전혀 없습니다.
+                        <br />
+                        우리에게 수익을 가져다주는 원칙 하나만 알면 됩니다.
+                      </p>
 
-                <p>
-                  더이상 리딩방에 의존하지 마세요.
+                      <p className="mt-3">
+                        복잡한 보조지표 없이 캔들과 이동평균선만으로 초보자도
+                        꾸준히 수익을 낼 수 있습니다.
+                      </p>
+
+                      <p className="mt-3">
+                        기준봉센터에서 매일 제공되는 종목 중 수익을 가져다주는
+                        차트 모양만 찾아내면 신기하게도 수익이 발생하는 주식
+                        게임이 가능해집니다.
+                      </p>
+
+                      <p className="mt-3">
+                        기준봉매매 자체는 심플하지만 해당 입문서는 아무도 모르는
+                        핵심 비기를 담고 있습니다.
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="mb-2 font-semibold text-foreground">
+                        3. 기준봉센터 종목 + 기준봉 매매법 입문서 최강 조합
+                      </p>
+                      <p>
+                        시장 상황이나 뉴스 등을 번거롭게 찾아보지 않아도 됩니다.
+                        <br />
+                        기준봉센터와 입문서 조합으로 게임하듯이 수익을
+                        가져다주는 차트 모양만 찾으면 됩니다.
+                      </p>
+
+                      <p className="mt-3">
+                        스마트폰 하루 10분 투자해서 평생 수익을 낼 수 있습니다.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="pt-4">
+                  더 이상 리딩방에 의존하지 마세요.
                   <br />
                   명확한 근거를 기반으로 본인 스스로 매매할 수 있는 능력을
                   만들어 드리겠습니다.
@@ -766,7 +811,8 @@ export default function EbookPage() {
                   아직도 제대로 된 투자 방향을 잡지 못한 투자자분들에게 해당
                   기준봉매매법이 유용하게 쓰였으면 좋겠습니다.
                 </p>
-                <p> 당신의 주식개념을 180도 바꿔드리겠습니다.</p>
+
+                <p>당신의 주식 개념을 180도 바꿔드리겠습니다.</p>
               </div>
             </CardContent>
           </Card>

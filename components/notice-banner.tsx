@@ -37,6 +37,13 @@ function getNoticeMeta(type: string) {
         iconClassName: "text-yellow-400",
       };
 
+    case "stock_story":
+      return {
+        label: "주식 이야기",
+        icon: Megaphone,
+        iconClassName: "text-yellow-400",
+      };
+
     case "general":
     default:
       return {

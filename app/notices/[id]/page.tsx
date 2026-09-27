@@ -13,6 +13,8 @@ function getTypeLabel(type: string) {
   if (type === "important") return "중요";
   if (type === "maintenance") return "점검";
   if (type === "event") return "이벤트";
+  if (type === "stock_story") return "주식 이야기";
+
   return "공지";
 }
 

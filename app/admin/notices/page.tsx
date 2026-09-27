@@ -27,12 +27,19 @@ function getTypeLabel(type: string) {
   switch (type) {
     case "important":
       return "중요";
+
     case "event":
       return "이벤트";
+
     case "maintenance":
       return "점검";
+
+    case "stock_story":
+      return "주식 이야기";
+
     case "general":
       return "일반";
+
     default:
       return type;
   }
@@ -42,6 +49,7 @@ function getTypeVariant(type: string) {
   switch (type) {
     case "important":
       return "destructive";
+
     default:
       return "secondary";
   }

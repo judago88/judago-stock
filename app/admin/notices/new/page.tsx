@@ -14,6 +14,7 @@ const noticeTypes = [
   { label: "중요 공지", value: "important" },
   { label: "이벤트", value: "event" },
   { label: "점검 안내", value: "maintenance" },
+  { label: "주식 이야기", value: "stock_story" },
 ];
 
 const emptyForm = {
