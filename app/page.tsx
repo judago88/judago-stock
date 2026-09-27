@@ -173,26 +173,20 @@ export default function DashboardPage() {
 
       <main className="container mx-auto px-4 py-6">
         <div className="sm:hidden flex gap-2 mb-4">
-          {/* <Button
+          <Button
             variant="outline"
             size="sm"
             className="flex-1 border-border/50"
-            asChild
+            onClick={() => router.push("/notices")}
           >
-            <a
-              href="https://www.threads.com/@jodago_"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <ExternalLink className="w-4 h-4 mr-1.5" />
-              Threads
-            </a>
-          </Button> */}
+            <Megaphone className="w-4 h-4 mr-1.5" />
+            공지사항
+          </Button>
 
           <Button
             variant="outline"
             size="sm"
-            className="border-border/50"
+            className="flex-1 border-border/50"
             onClick={() => setContactOpen(true)}
           >
             <ExternalLink className="w-4 h-4 mr-1.5" />
@@ -201,7 +195,7 @@ export default function DashboardPage() {
 
           <Button
             size="sm"
-            className="bg-red-500 hover:bg-red-600 text-white border-0"
+            className="flex-1 bg-red-500 hover:bg-red-600 text-white border-0"
             asChild
           >
             <Link href="/ebook">
