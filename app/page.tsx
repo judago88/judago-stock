@@ -101,7 +101,7 @@ export default function DashboardPage() {
             </Link>
 
             <div className="hidden sm:flex items-center gap-2">
-              <Button
+              {/* <Button
                 variant="outline"
                 size="sm"
                 className="border-border/50"
@@ -109,7 +109,7 @@ export default function DashboardPage() {
               >
                 <Megaphone className="w-4 h-4 mr-1.5" />
                 공지사항
-              </Button>
+              </Button> */}
 
               {/* <Button
                 variant="outline"
@@ -127,7 +127,7 @@ export default function DashboardPage() {
                 </a>
               </Button> */}
 
-              <Button
+              {/* <Button
                 variant="outline"
                 size="sm"
                 className="border-border/50"
@@ -135,7 +135,7 @@ export default function DashboardPage() {
               >
                 <ExternalLink className="w-4 h-4 mr-1.5" />
                 문의하기
-              </Button>
+              </Button> */}
 
               <Button
                 size="sm"
@@ -152,7 +152,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <NoticeBanner notices={notices} />
+      {/* <NoticeBanner notices={notices} /> */}
 
       <div className="border-b border-border/50 bg-secondary/20">
         <div className="container mx-auto px-4 py-2">
@@ -173,7 +173,7 @@ export default function DashboardPage() {
 
       <main className="container mx-auto px-4 py-6">
         <div className="sm:hidden flex gap-2 mb-4">
-          <Button
+          {/* <Button
             variant="outline"
             size="sm"
             className="flex-1 border-border/50"
@@ -191,7 +191,7 @@ export default function DashboardPage() {
           >
             <ExternalLink className="w-4 h-4 mr-1.5" />
             문의하기
-          </Button>
+          </Button> */}
 
           <Button
             size="sm"

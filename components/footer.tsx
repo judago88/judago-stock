@@ -19,12 +19,12 @@ export function Footer() {
               </div>
 
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2 text-sm text-muted-foreground">
-                <Link
+                {/* <Link
                   href="/notices"
                   className="hover:text-foreground transition-colors"
                 >
                   공지사항
-                </Link>
+                </Link> */}
 
                 <button
                   type="button"
